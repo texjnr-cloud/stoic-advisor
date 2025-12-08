@@ -88,14 +88,18 @@ export default function ChatInterface() {
           </div>
         )}
 
-        {response && (
-          <div className="space-y-6">
-            <ResponseCard response={response} />
-            {actionPlan && <ActionPlan plan={actionPlan} />}
-            {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+       {response && (
+  <div className="space-y-6">
+    <ResponseCard response={response} />
+    {actionPlan && <ActionPlan plan={actionPlan} />}
+    {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
+  </div>
+)}
+
+{loading && (
+  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-700 mx-auto mb-4"></div>
+    <p className="text-gray-600 font-medium">Consulting Marcus Aurelius...</p>
+    <p className="text-sm text-gray-500 mt-2">Generating advice, action plan, and reflection prompts...</p>
+  </div>
+)}
