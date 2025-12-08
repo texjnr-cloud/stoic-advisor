@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { getCurrentUser } from '../services/supabaseClient';
+import { getCurrentUser, getUserFreeUsesRemaining, decrementFreeUses, isPaidUser } from '../services/supabaseClient';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
 import EmotionAnalysis from './EmotionAnalysis';
 import ResponseCard from './ResponseCard';
 import ActionPlan from './ActionPlan';
 import JournalPrompts from './JournalPrompts';
+import PaywallModal from './PaywallModal';
 
 export default function ChatInterface() {
   const [dilemma, setDilemma] = useState('');
@@ -14,6 +15,9 @@ export default function ChatInterface() {
   const [journalPrompts, setJournalPrompts] = useState(null);
   const [emotionAnalysis, setEmotionAnalysis] = useState(null);
   const [error, setError] = useState(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [freeUsesRemaining, setFreeUsesRemaining] = useState(3);
+  const [isPaid, setIsPaid] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,17 +33,42 @@ export default function ChatInterface() {
         return;
       }
 
+      // Check if paid
+      const paid = await isPaidUser(user.id);
+      setIsPaid(paid);
+
+      // If not paid, check free uses
+      if (!paid) {
+        const remaining = await getUserFreeUsesRemaining(user.id);
+        setFreeUsesRemaining(remaining);
+
+        if (remaining <= 0) {
+          setShowPaywall(true);
+          setLoading(false);
+          return;
+        }
+
+        // Decrement free uses
+        const result = await decrementFreeUses(user.id);
+        setFreeUsesRemaining(result.remaining);
+      }
+
+      // Generate analysis
       const analysis = await analyzeEmotion(dilemma);
       setEmotionAnalysis(analysis);
 
+      // Generate advice
       const advice = await generateStoicAdvice(dilemma);
       setResponse(advice);
 
-      const plan = await generateActionPlan(dilemma, advice.advice);
-      setActionPlan(plan);
+      // Only show action plan and journal if paid
+      if (paid) {
+        const plan = await generateActionPlan(dilemma, advice.advice);
+        setActionPlan(plan);
 
-      const prompts = await generateJournalPrompts(dilemma);
-      setJournalPrompts(prompts);
+        const prompts = await generateJournalPrompts(dilemma);
+        setJournalPrompts(prompts);
+      }
 
       setDilemma('');
     } catch (err) {
@@ -50,16 +79,25 @@ export default function ChatInterface() {
     }
   };
 
+  const handleUpgrade = () => {
+    window.location.href = 'https://buy.stripe.com/your-payment-link';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-6">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-serif font-bold text-gray-900 mb-2">
-            Ask Marcus Aurelius
+            Stoic Advisor
           </h1>
           <p className="text-lg text-gray-600">
-            Seek stoic wisdom for life's dilemmas
+            Seek wisdom from Marcus Aurelius
           </p>
+          {!isPaid && (
+            <p className="text-sm text-gray-500 mt-2">
+              Free uses remaining: <span className="font-semibold">{freeUsesRemaining}/3</span>
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="mb-8">
@@ -97,7 +135,7 @@ export default function ChatInterface() {
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-700 mx-auto mb-4"></div>
             <p className="text-gray-600 font-medium">Consulting Marcus Aurelius...</p>
-            <p className="text-sm text-gray-500 mt-2">Generating advice, action plan, and reflection prompts...</p>
+            <p className="text-sm text-gray-500 mt-2">Analyzing emotion, belief, and generating guidance...</p>
           </div>
         )}
 
@@ -105,11 +143,5 @@ export default function ChatInterface() {
           <div className="space-y-6">
             <EmotionAnalysis analysis={emotionAnalysis} />
             <ResponseCard response={response} />
-            {actionPlan && <ActionPlan plan={actionPlan} />}
-            {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+            {isPaid && actionPlan && <ActionPlan plan={actionPlan} />}
+            {isPaid &
