@@ -1,4 +1,3 @@
-const [emotionAnalysis, setEmotionAnalysis] = useState(null);
 import React, { useState } from 'react';
 import { getCurrentUser } from '../services/supabaseClient';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
@@ -13,42 +12,44 @@ export default function ChatInterface() {
   const [response, setResponse] = useState(null);
   const [actionPlan, setActionPlan] = useState(null);
   const [journalPrompts, setJournalPrompts] = useState(null);
+  const [emotionAnalysis, setEmotionAnalysis] = useState(null);
   const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!dilemma.trim()) return;
+    e.preventDefault();
+    if (!dilemma.trim()) return;
 
-  setError(null);
-  setLoading(true);
+    setError(null);
+    setLoading(true);
 
-  try {
-    const user = await getCurrentUser();
-    if (!user) {
-      setError('Please log in to continue');
-      return;
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        setError('Please log in to continue');
+        return;
+      }
+
+      const analysis = await analyzeEmotion(dilemma);
+      setEmotionAnalysis(analysis);
+
+      const advice = await generateStoicAdvice(dilemma);
+      setResponse(advice);
+
+      const plan = await generateActionPlan(dilemma, advice.advice);
+      setActionPlan(plan);
+
+      const prompts = await generateJournalPrompts(dilemma);
+      setJournalPrompts(prompts);
+
+      setDilemma('');
+    } catch (err) {
+      console.error('Error:', err);
+      setError(err.message || 'Failed to get advice. Please try again.');
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const analysis = await analyzeEmotion(dilemma);
-    setEmotionAnalysis(analysis);
-
-    const advice = await generateStoicAdvice(dilemma);
-    setResponse(advice);
-
-    const plan = await generateActionPlan(dilemma, advice.advice);
-    setActionPlan(plan);
-
-    const prompts = await generateJournalPrompts(dilemma);
-    setJournalPrompts(prompts);
-
-    setDilemma('');
-  } catch (err) {
-    console.error('Error:', err);
-    setError(err.message || 'Failed to get advice. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-6">
       <div className="max-w-3xl mx-auto">
@@ -92,19 +93,23 @@ export default function ChatInterface() {
           </div>
         )}
 
-      {response && (
-  <div className="space-y-6">
-    <EmotionAnalysis analysis={emotionAnalysis} />
-    <ResponseCard response={response} />
-    {actionPlan && <ActionPlan plan={actionPlan} />}
-    {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
-  </div>
-)}
+        {loading && (
+          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-700 mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Consulting Marcus Aurelius...</p>
+            <p className="text-sm text-gray-500 mt-2">Generating advice, action plan, and reflection prompts...</p>
+          </div>
+        )}
 
-{loading && (
-  <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-700 mx-auto mb-4"></div>
-    <p className="text-gray-600 font-medium">Consulting Marcus Aurelius...</p>
-    <p className="text-sm text-gray-500 mt-2">Generating advice, action plan, and reflection prompts...</p>
-  </div>
-)}
+        {response && (
+          <div className="space-y-6">
+            <EmotionAnalysis analysis={emotionAnalysis} />
+            <ResponseCard response={response} />
+            {actionPlan && <ActionPlan plan={actionPlan} />}
+            {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
