@@ -1,3 +1,4 @@
+const [emotionAnalysis, setEmotionAnalysis] = useState(null);
 import React, { useState } from 'react';
 import { getCurrentUser } from '../services/supabaseClient';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
@@ -15,37 +16,39 @@ export default function ChatInterface() {
   const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!dilemma.trim()) return;
+  e.preventDefault();
+  if (!dilemma.trim()) return;
 
-    setError(null);
-    setLoading(true);
+  setError(null);
+  setLoading(true);
 
-    try {
-      const user = await getCurrentUser();
-      if (!user) {
-        setError('Please log in to continue');
-        return;
-      }
-
-      const advice = await generateStoicAdvice(dilemma);
-      setResponse(advice);
-
-      const plan = await generateActionPlan(dilemma, advice.advice);
-      setActionPlan(plan);
-
-      const prompts = await generateJournalPrompts(dilemma);
-      setJournalPrompts(prompts);
-
-      setDilemma('');
-    } catch (err) {
-      console.error('Error:', err);
-      setError(err.message || 'Failed to get advice. Please try again.');
-    } finally {
-      setLoading(false);
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      setError('Please log in to continue');
+      return;
     }
-  };
 
+    const analysis = await analyzeEmotion(dilemma);
+    setEmotionAnalysis(analysis);
+
+    const advice = await generateStoicAdvice(dilemma);
+    setResponse(advice);
+
+    const plan = await generateActionPlan(dilemma, advice.advice);
+    setActionPlan(plan);
+
+    const prompts = await generateJournalPrompts(dilemma);
+    setJournalPrompts(prompts);
+
+    setDilemma('');
+  } catch (err) {
+    console.error('Error:', err);
+    setError(err.message || 'Failed to get advice. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-6">
       <div className="max-w-3xl mx-auto">
@@ -89,8 +92,9 @@ export default function ChatInterface() {
           </div>
         )}
 
-       {response && (
+      {response && (
   <div className="space-y-6">
+    <EmotionAnalysis analysis={emotionAnalysis} />
     <ResponseCard response={response} />
     {actionPlan && <ActionPlan plan={actionPlan} />}
     {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
