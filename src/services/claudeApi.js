@@ -3,8 +3,14 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 
+const apiKey = process.env.VITE_CLAUDE_API_KEY;
+
+if (!apiKey) {
+  throw new Error('Missing Claude API key');
+}
+
 const client = new Anthropic({
-  apiKey: process.env.VITE_CLAUDE_API_KEY,
+  apiKey: apiKey,
 });
 
 // System prompt: How Marcus Aurelius should respond
