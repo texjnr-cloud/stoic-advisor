@@ -1,9 +1,16 @@
 export async function generateStoicAdvice(dilemma) {
-  const apiKey = import.meta.env.VITE_CLAUDE_API_KEY;
-  
-  if (!apiKey) {
-    throw new Error('Missing Claude API key');
+  const response = await fetch('/api/generateAdvice', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dilemma }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to generate advice');
   }
+
+  return response.json();
+}
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
