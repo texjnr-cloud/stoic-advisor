@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { getCurrentUser } from '../services/supabaseClient';
-import { generateStoicAdvice } from '../services/claudeApi';
+import { generateStoicAdvice } from '../services/claudeApi.jsx';
 import ResponseCard from './ResponseCard';
 
 export default function ChatInterface() {
