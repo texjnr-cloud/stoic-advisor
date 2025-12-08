@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { getCurrentUser } from '../services/supabaseClient';
-import { generateStoicAdvice, generateActionPlan, generateJournalPrompts } from '../services/claudeApi';
+import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
+import EmotionAnalysis from './EmotionAnalysis';
 import ResponseCard from './ResponseCard';
 import ActionPlan from './ActionPlan';
 import JournalPrompts from './JournalPrompts';
