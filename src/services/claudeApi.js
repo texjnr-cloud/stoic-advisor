@@ -4,7 +4,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 
 const client = new Anthropic({
- import.meta.env.VITE_CLAUDE_API_KEY
+  apiKey: process.env.VITE_CLAUDE_API_KEY,
 });
 
 // System prompt: How Marcus Aurelius should respond
