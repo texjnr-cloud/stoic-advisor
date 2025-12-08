@@ -53,4 +53,5 @@ export default function ActionPlan({ plan }) {
                     Daily Actions
                   </h5>
                   <ul className="space-y-2">
-                    {week.daily_actions && week.daily_actions.map((action, i) =
+            {week.daily_actions && week.daily_actions.map((action, i) => (
+  <li key={i} className="flex items-start">
