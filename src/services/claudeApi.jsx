@@ -4,19 +4,6 @@ export async function generateStoicAdvice(dilemma) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ dilemma }),
   });
-  export async function analyzeEmotion(dilemma) {
-  const response = await fetch('/api/analyzeEmotion', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ dilemma }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to analyze emotion');
-  }
-
-  return response.json();
-}
 
   if (!response.ok) {
     throw new Error('Failed to generate advice');
@@ -48,6 +35,20 @@ export async function generateJournalPrompts(dilemma) {
 
   if (!response.ok) {
     throw new Error('Failed to generate prompts');
+  }
+
+  return response.json();
+}
+
+export async function analyzeEmotion(dilemma) {
+  const response = await fetch('/api/analyzeEmotion', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dilemma }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to analyze emotion');
   }
 
   return response.json();
