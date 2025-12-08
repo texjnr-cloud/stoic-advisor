@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { getCurrentUser } from '../services/supabaseClient';
-import { generateStoicAdvice } from '../services/claudeApi.jsx';
+import { generateStoicAdvice, generateActionPlan, generateJournalPrompts } from '../services/claudeApi';
 import ResponseCard from './ResponseCard';
+import ActionPlan from './ActionPlan';
+import JournalPrompts from './JournalPrompts';
 
 export default function ChatInterface() {
   const [dilemma, setDilemma] = useState('');
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
+  const [actionPlan, setActionPlan] = useState(null);
+  const [journalPrompts, setJournalPrompts] = useState(null);
   const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
@@ -25,6 +29,13 @@ export default function ChatInterface() {
 
       const advice = await generateStoicAdvice(dilemma);
       setResponse(advice);
+
+      const plan = await generateActionPlan(dilemma, advice.advice);
+      setActionPlan(plan);
+
+      const prompts = await generateJournalPrompts(dilemma);
+      setJournalPrompts(prompts);
+
       setDilemma('');
     } catch (err) {
       console.error('Error:', err);
@@ -77,7 +88,13 @@ export default function ChatInterface() {
           </div>
         )}
 
-        {response && <ResponseCard response={response} />}
+        {response && (
+          <div className="space-y-6">
+            <ResponseCard response={response} />
+            {actionPlan && <ActionPlan plan={actionPlan} />}
+            {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
+          </div>
+        )}
       </div>
     </div>
   );

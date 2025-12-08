@@ -1,13 +1,7 @@
-// components/JournalPrompts.jsx
-// Journal reflection prompts for processing the advice
-
 import React, { useState } from 'react';
-import { updateJournalEntry } from '../services/supabaseClient';
 
-export default function JournalPrompts({ prompts, scenarioId }) {
+export default function JournalPrompts({ prompts }) {
   const [answers, setAnswers] = useState({});
-  const [savedEntries, setSavedEntries] = useState({});
-  const [loading, setLoading] = useState({});
 
   if (!prompts || !prompts.prompts || prompts.prompts.length === 0) {
     return null;
@@ -18,26 +12,6 @@ export default function JournalPrompts({ prompts, scenarioId }) {
       ...answers,
       [idx]: value,
     });
-  };
-
-  const handleSave = async (idx, entryId) => {
-    const answer = answers[idx];
-    if (!answer || !answer.trim()) return;
-
-    setLoading({ ...loading, [idx]: true });
-
-    try {
-      await updateJournalEntry(entryId, answer);
-      setSavedEntries({
-        ...savedEntries,
-        [idx]: true,
-      });
-    } catch (err) {
-      console.error('Error saving journal entry:', err);
-      alert('Failed to save. Please try again.');
-    } finally {
-      setLoading({ ...loading, [idx]: false });
-    }
   };
 
   return (
@@ -52,35 +26,17 @@ export default function JournalPrompts({ prompts, scenarioId }) {
       <div className="space-y-6">
         {prompts.prompts.map((prompt, idx) => (
           <div key={idx} className="border border-gray-300 rounded-lg p-6 bg-gray-50">
-            {/* Prompt */}
             <h4 className="font-semibold text-gray-900 mb-4 text-lg">
               {idx + 1}. {prompt}
             </h4>
 
-            {/* Answer Textarea */}
             <textarea
               value={answers[idx] || ''}
               onChange={(e) => handleAnswerChange(idx, e.target.value)}
               placeholder="Your reflection here..."
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mb-3"
               rows="4"
-              disabled={loading[idx] || savedEntries[idx]}
             />
-
-            {/* Save Button */}
-            {!savedEntries[idx] ? (
-              <button
-                onClick={() => handleSave(idx, null)} // You'd need to track entry IDs
-                disabled={!answers[idx] || !answers[idx].trim() || loading[idx]}
-                className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
-              >
-                {loading[idx] ? 'Saving...' : 'Save Reflection'}
-              </button>
-            ) : (
-              <div className="text-green-600 font-medium text-sm flex items-center">
-                ✓ Saved
-              </div>
-            )}
           </div>
         ))}
       </div>

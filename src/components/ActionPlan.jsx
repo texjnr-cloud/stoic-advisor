@@ -1,6 +1,3 @@
-// components/ActionPlan.jsx
-// Shows 4-week personalized action plan
-
 import React, { useState } from 'react';
 
 export default function ActionPlan({ plan }) {
@@ -29,7 +26,6 @@ export default function ActionPlan({ plan }) {
       <div className="space-y-4">
         {plan.weeks.map((week, idx) => (
           <div key={idx} className="border border-gray-200 rounded-lg overflow-hidden">
-            {/* Week Header */}
             <button
               onClick={() => setExpandedWeek(expandedWeek === idx ? -1 : idx)}
               className="w-full px-6 py-4 bg-amber-50 hover:bg-amber-100 flex justify-between items-center transition-colors"
@@ -44,44 +40,17 @@ export default function ActionPlan({ plan }) {
               </span>
             </button>
 
-            {/* Week Content */}
             {expandedWeek === idx && (
               <div className="px-6 py-4 bg-white border-t border-gray-200 space-y-4">
-                {/* Virtue Focus */}
                 {week.virtue_to_practice && (
                   <div className={`p-3 rounded-lg border ${virtueColors[week.virtue_to_practice] || 'bg-gray-100'}`}>
                     <p className="text-sm font-semibold">Focus Virtue: {week.virtue_to_practice}</p>
                   </div>
                 )}
 
-                {/* Daily Actions */}
                 <div>
                   <h5 className="font-semibold text-gray-900 mb-3 text-sm uppercase tracking-wide">
                     Daily Actions
                   </h5>
                   <ul className="space-y-2">
-                    {week.daily_actions && week.daily_actions.map((action, i) => (
-                      <li key={i} className="flex items-start">
-                        <span className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-amber-200 text-amber-900 text-xs font-semibold mr-3 flex-shrink-0 mt-0.5">
-                          {i + 1}
-                        </span>
-                        <span className="text-gray-700">{action}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
-        <p className="text-sm text-gray-700">
-          <span className="font-semibold">Pro tip:</span> Pick ONE action per week that resonates most. 
-          Mastery comes through repetition, not perfection.
-        </p>
-      </div>
-    </div>
-  );
-}
+                    {week.daily_actions && week.daily_actions.map((action, i) =
