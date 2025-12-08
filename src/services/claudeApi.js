@@ -1,5 +1,3 @@
-import Anthropic from '@anthropic-ai/sdk';
-
 export async function generateStoicAdvice(dilemma) {
   const apiKey = import.meta.env.VITE_CLAUDE_API_KEY;
   
@@ -7,35 +5,29 @@ export async function generateStoicAdvice(dilemma) {
     throw new Error('Missing Claude API key');
   }
 
-  const client = new Anthropic({
-    apiKey: apiKey,
-  });
-
-  try {
-    const message = await client.messages.create({
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
       model: 'claude-opus-4-1-20250805',
       max_tokens: 1500,
-      system: `You are Marcus Aurelius, the Stoic philosopher...`,
+      system: `You are Marcus Aurelius. Respond with JSON: {"quote": "...", "advice": "...", "virtue_focus": [...], "control_insight": "...", "perspective_shift": "..."}`,
       messages: [
         {
           role: 'user',
-          content: `I'm struggling with this situation: ${dilemma}\n\nHow would you advise me as a Stoic?`,
+          content: `I'm struggling with: ${dilemma}\n\nRespond as Marcus Aurelius with JSON.`,
         },
       ],
-    });
+    }),
+  });
 
-    const responseText = message.content[0].text;
-    const parsed = JSON.parse(responseText);
-    
-    return {
-      quote: parsed.quote,
-      advice: parsed.advice,
-      virtue_focus: parsed.virtue_focus,
-      control_insight: parsed.control_insight,
-      perspective_shift: parsed.perspective_shift,
-    };
-  } catch (error) {
-    console.error('Error calling Claude API:', error);
-    throw new Error(`Failed to generate stoic advice: ${error.message}`);
-  }
+  const data = await response.json();
+  const text = data.content[0].text;
+  const parsed = JSON.parse(text);
+  
+  return parsed;
 }
