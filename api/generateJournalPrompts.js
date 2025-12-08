@@ -20,12 +20,11 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-opus-4-1-20250805',
-        max_tokens: 800,
-        system: `You are Marcus Aurelius creating reflection prompts. Respond ONLY with JSON: {"prompts": ["question 1?", "question 2?"]}`,
-        messages: [
+        max_tokens: 500,
+        system: `You are Marcus Aurelius creating 3 powerful reflection prompts (not 5). Respond ONLY with JSON: {"prompts": ["question 1?", "question 2?", "question 3?"]}`
           {
             role: 'user',
-            content: `Situation: ${dilemma}\n\nCreate 5 reflection questions for journaling. Respond ONLY with JSON.`,
+            content: `Situation: ${dilemma}\n\nCreate 3 (not 5) reflection questions for journaling. Respond ONLY with JSON.`,.`,
           },
         ],
       }),
