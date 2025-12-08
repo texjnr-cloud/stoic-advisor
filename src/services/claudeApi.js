@@ -3,7 +3,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 
-const apiKey = process.env.VITE_CLAUDE_API_KEY;
+const apiKey = import.meta.env.VITE_CLAUDE_API_KEY;
 
 if (!apiKey) {
   throw new Error('Missing Claude API key');
