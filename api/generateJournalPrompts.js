@@ -33,7 +33,8 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     const text = data.content[0].text;
-    const parsed = JSON.parse(text);
+    const cleanText = text.replace(/```json\n?|\n?```/g, '').trim();
+const parsed = JSON.parse(cleanText);
 
     return res.status(200).json(parsed);
   } catch (error) {
