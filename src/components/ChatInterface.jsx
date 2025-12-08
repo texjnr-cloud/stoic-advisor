@@ -20,18 +20,30 @@ export default function ChatInterface() {
   const [scenarioId, setScenarioId] = useState(null);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!dilemma.trim()) return;
+  e.preventDefault();
+  if (!dilemma.trim()) return;
 
-    setError(null);
-    setLoading(true);
+  setError(null);
+  setLoading(true);
 
-    try {
-      const user = await getCurrentUser();
-      if (!user) {
-        setError('Please log in to continue');
-        return;
-      }
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      setError('Please log in to continue');
+      return;
+    }
+
+    const { generateStoicAdvice } = await import('../services/claudeApi');
+    const advice = await generateStoicAdvice(dilemma);
+    setResponse(advice);
+    setDilemma('');
+  } catch (err) {
+    console.error('Error:', err);
+    setError(err.message || 'Failed to get advice. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
       // Check if user can make a query
       const { can_query, reason } = await canMakeQuery(user.id);
