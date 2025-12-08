@@ -144,4 +144,25 @@ export default function ChatInterface() {
             <EmotionAnalysis analysis={emotionAnalysis} />
             <ResponseCard response={response} />
             {isPaid && actionPlan && <ActionPlan plan={actionPlan} />}
-            {isPaid &
+            {isPaid && journalPrompts && <JournalPrompts prompts={journalPrompts} />}
+            {!isPaid && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                <p className="text-gray-700 mb-4">
+                  <span className="font-semibold">Unlock 4-week action plans and journal prompts</span> with a paid subscription
+                </p>
+                <button
+                  onClick={handleUpgrade}
+                  className="bg-amber-700 hover:bg-amber-800 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
+                >
+                  Upgrade to Paid
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {showPaywall && <PaywallModal onUpgrade={handleUpgrade} />}
+      </div>
+    </div>
+  );
+}
