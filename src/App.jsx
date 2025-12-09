@@ -73,10 +73,23 @@ function LoginPage() {
         setMessage('Account not found. Creating new account...');
         
         try {
-          const { error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-          });
+         const { data, error: signUpError } = await supabase.auth.signUp({
+  email,
+  password,
+});
+
+if (signUpError) throw signUpError;
+
+const { error: signInError } = await supabase.auth.signInWithPassword({
+  email,
+  password,
+});
+
+if (signInError) throw signInError;
+
+setMessage('✓ Account created! Welcome to Stoic Advisor.');
+setEmail('');
+setPassword('');
           
           if (signUpError) throw signUpError;
           
