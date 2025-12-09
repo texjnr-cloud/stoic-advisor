@@ -7,6 +7,7 @@ import ResponseCard from './ResponseCard';
 import ActionPlan from './ActionPlan';
 import JournalPrompts from './JournalPrompts';
 import PaywallModal from './PaywallModal';
+import { Stripe } from 'stripe';
 
 export default function ChatInterface() {
   const [dilemma, setDilemma] = useState('');
@@ -83,16 +84,26 @@ export default function ChatInterface() {
     }
   };
 
-  const handleUpgrade = () => {
-    const TEST_MODE = true;
-    
-    if (TEST_MODE) {
-      alert('Test mode: Stripe payment would process here.');
+ const handleUpgrade = async () => {
+  try {
+    const response = await fetch('/api/createCheckout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const { sessionId, error } = await response.json();
+
+    if (error) {
+      alert('Error: ' + error);
       return;
     }
-    
-    window.location.href = 'https://buy.stripe.com/your-payment-link';
-  };
+
+    window.location.href = `https://checkout.stripe.com/pay/${sessionId}`;
+  } catch (err) {
+    console.error('Checkout error:', err);
+    alert('Failed to start checkout. Please try again.');
+  }
+};
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
