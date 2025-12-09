@@ -7,7 +7,6 @@ import ResponseCard from './ResponseCard';
 import ActionPlan from './ActionPlan';
 import JournalPrompts from './JournalPrompts';
 import PaywallModal from './PaywallModal';
-import { Stripe } from 'stripe';
 
 export default function ChatInterface() {
   const [dilemma, setDilemma] = useState('');
@@ -84,26 +83,26 @@ export default function ChatInterface() {
     }
   };
 
- const handleUpgrade = async () => {
-  try {
-    const response = await fetch('/api/createCheckout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    });
+  const handleUpgrade = async () => {
+    try {
+      const response = await fetch('/api/createCheckout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
 
-    const { sessionId, error } = await response.json();
+      const { sessionId, error } = await response.json();
 
-    if (error) {
-      alert('Error: ' + error);
-      return;
+      if (error) {
+        alert('Error: ' + error);
+        return;
+      }
+
+      window.location.href = `https://checkout.stripe.com/pay/${sessionId}`;
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('Failed to start checkout. Please try again.');
     }
-
-    window.location.href = `https://checkout.stripe.com/pay/${sessionId}`;
-  } catch (err) {
-    console.error('Checkout error:', err);
-    alert('Failed to start checkout. Please try again.');
-  }
-};
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -126,8 +125,8 @@ export default function ChatInterface() {
         <form onSubmit={handleSubmit} className="mb-6 sm:mb-8">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200">
             <label htmlFor="dilemma" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">What's troubling you?</label>
-            <textarea ... disabled={loading} />
-            <button ... disabled={loading || !dilemma.trim()} ...>
+            <textarea id="dilemma" value={dilemma} onChange={(e) => setDilemma(e.target.value)} placeholder="Describe the situation you're facing..." className="w-full p-3 sm:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none text-sm sm:text-base" rows="4" disabled={loading} />
+            <button type="submit" disabled={loading || !dilemma.trim()} className="mt-3 sm:mt-4 w-full bg-amber-700 hover:bg-amber-800 disabled:bg-gray-400 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base">{loading ? 'Consulting Marcus...' : 'Seek Guidance'}</button>
           </div>
         </form>
 
