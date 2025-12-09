@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import { supabase } from '../services/supabaseClient';
+import React, { useState, useEffect } from 'react';
+import { getCurrentUser, getUserFreeUsesRemaining, decrementFreeUses } from '../services/supabaseClient';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
 import EmotionAnalysis from './EmotionAnalysis';
 import ResponseCard from './ResponseCard';
@@ -17,6 +19,18 @@ export default function ChatInterface() {
   const [showPaywall, setShowPaywall] = useState(false);
   const [freeUsesRemaining, setFreeUsesRemaining] = useState(1);
 
+  useEffect(() => {
+    const checkFreeUses = async () => {
+      const user = await getCurrentUser();
+      if (user) {
+        const remaining = await getUserFreeUsesRemaining(user.id);
+        setFreeUsesRemaining(remaining);
+      }
+    };
+
+    checkFreeUses();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!dilemma.trim()) return;
@@ -25,7 +39,17 @@ export default function ChatInterface() {
     setLoading(true);
 
     try {
-      if (freeUsesRemaining <= 0) {
+      const user = await getCurrentUser();
+      if (!user) {
+        setError('Please log in to continue');
+        setLoading(false);
+        return;
+      }
+
+      const remaining = await getUserFreeUsesRemaining(user.id);
+      setFreeUsesRemaining(remaining);
+
+      if (remaining <= 0) {
         setShowPaywall(true);
         setLoading(false);
         return;
@@ -47,7 +71,9 @@ export default function ChatInterface() {
       setActionPlan(plan);
       setJournalPrompts(prompts);
 
-      setFreeUsesRemaining(0);
+      const result = await decrementFreeUses(user.id);
+      setFreeUsesRemaining(result.remaining);
+
       setDilemma('');
     } catch (err) {
       console.error('Error:', err);
@@ -68,13 +94,22 @@ export default function ChatInterface() {
     window.location.href = 'https://buy.stripe.com/your-payment-link';
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-4 sm:p-6">
       <div className="w-full max-w-2xl mx-auto">
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 mb-1 sm:mb-2">Stoic Advisor</h1>
-          <p className="text-sm sm:text-lg text-gray-600">Seek wisdom from Marcus Aurelius</p>
-          {freeUsesRemaining > 0 && <p className="text-xs sm:text-sm text-gray-500 mt-2">Free uses remaining: <span className="font-semibold">{freeUsesRemaining}</span></p>}
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <div className="text-center flex-1">
+            <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 mb-1 sm:mb-2">Stoic Advisor</h1>
+            <p className="text-xs sm:text-lg text-gray-600">Seek wisdom from Marcus Aurelius</p>
+            {freeUsesRemaining > 0 && <p className="text-xs text-gray-500 mt-1">Free uses remaining: <span className="font-semibold">{freeUsesRemaining}</span></p>}
+          </div>
+          <button onClick={handleLogout} className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 underline">
+            Logout
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} className="mb-6 sm:mb-8">
@@ -85,13 +120,13 @@ export default function ChatInterface() {
           </div>
         </form>
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-6 text-sm sm:text-base">{error}</div>}
+        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-6 text-xs sm:text-base">{error}</div>}
 
         {loading && (
           <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 text-center">
             <div className="animate-spin rounded-full h-10 sm:h-12 w-10 sm:w-12 border-b-2 border-amber-700 mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium text-sm sm:text-base">Consulting Marcus Aurelius...</p>
-            <p className="text-xs sm:text-sm text-gray-500 mt-2">Analyzing emotion and generating guidance...</p>
+            <p className="text-gray-600 font-medium text-xs sm:text-base">Consulting Marcus Aurelius...</p>
+            <p className="text-xs text-gray-500 mt-2">Analyzing emotion and generating guidance...</p>
           </div>
         )}
 
