@@ -112,4 +112,13 @@ export default function ChatInterface() {
               placeholder="Describe the situation you're facing..."
               className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
               rows="6"
-              disabled={loading
+              <textarea
+ <textarea
+  id="dilemma"
+  value={dilemma}
+  onChange={(e) => setDilemma(e.target.value)}
+  placeholder="Describe the situation you're facing..."
+  className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+  rows="6"
+  disabled={loading}
+/>
