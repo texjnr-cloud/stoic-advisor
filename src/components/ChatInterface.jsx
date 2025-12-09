@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { getCurrentUser } from '../services/supabaseClient';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
 import EmotionAnalysis from './EmotionAnalysis';
 import ResponseCard from './ResponseCard';
@@ -24,10 +23,7 @@ export default function ChatInterface() {
 
     try {
       const user = await getCurrentUser();
-      if (!user) {
-        setError('Please log in to continue');
-        setLoading(false);
-        return;
+      
       }
 
       const [analysis, advice] = await Promise.all([
