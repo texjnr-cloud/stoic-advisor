@@ -26,7 +26,7 @@ export async function getUserFreeUsesRemaining(userId) {
     return 1;
   }
 
-  return data?.free_uses_remaining || 3;
+  return data?.free_uses_remaining ?? 1;
 }
 
 export async function decrementFreeUses(userId) {
@@ -98,12 +98,12 @@ export async function canMakeQuery(userId) {
     return { can_query: true, reason: null };
   }
 
-  if (profile.queries_used_this_month >= 3) {
+  if (profile.queries_used_this_month >= 1) {
     return { 
       can_query: false, 
-      reason: 'Free tier limit reached (3/month)',
+      reason: 'Free tier limit reached (1/month)',
       used: profile.queries_used_this_month,
-      limit: 3
+      limit: 1
     };
   }
 
