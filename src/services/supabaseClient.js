@@ -237,5 +237,47 @@ export async function updateJournalEntry(entryId, answer) {
   if (error) throw error;
   return data;
 }
+export async function saveScenarioWithResponse(dilemma, analysis, advice, actionPlan, journalPrompts) {
+  try {
+    const { data: scenario, error: scenarioError } = await supabase
+      .from('scenarios')
+      .insert({
+        title: analysis.emotion,
+        description: dilemma,
+      })
+      .select()
+      .single();
 
+    if (scenarioError) throw scenarioError;
+
+    const { data: response, error: responseError } = await supabase
+      .from('responses')
+      .insert({
+        scenario_id: scenario.id,
+        quote: '',
+        advice: advice.advice,
+        action_plan: actionPlan,
+      })
+      .select()
+      .single();
+
+    if (responseError) throw responseError;
+
+    const journalEntries = journalPrompts.prompts.map(prompt => ({
+      scenario_id: scenario.id,
+      prompt,
+    }));
+
+    const { error: journalError } = await supabase
+      .from('journal_entries')
+      .insert(journalEntries);
+
+    if (journalError) throw journalError;
+
+    return { success: true, scenario_id: scenario.id };
+  } catch (err) {
+    console.error('Error saving response:', err);
+    return { success: false, error: err.message };
+  }
+}
 export default supabase;
