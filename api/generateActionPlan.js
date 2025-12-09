@@ -19,8 +19,8 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-1-20250805',
-        max_tokens: 1200,
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 800,
         system: `You are Marcus Aurelius creating a 4-week action plan. Respond ONLY with JSON: {"weeks": [{"week": 1, "theme": "...", "daily_actions": ["..."], "virtue_to_practice": "..."}]}`,
         messages: [
           {
@@ -33,8 +33,9 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     const text = data.content[0].text;
-   const cleanText = text.replace(/```json\n?|\n?```/g, '').trim();
-const parsed = JSON.parse(cleanText);
+    const cleanText = text.replace(/```json\n?|\n?```/g, '').trim();
+    const parsed = JSON.parse(cleanText);
+
     return res.status(200).json(parsed);
   } catch (error) {
     console.error('Error:', error);
