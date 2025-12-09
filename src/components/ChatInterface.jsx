@@ -1,3 +1,4 @@
+import { loadStripe } from '@stripe/js';
 import { supabase } from '../services/supabaseClient';
 import React, { useState, useEffect } from 'react';
 import { getCurrentUser, getUserFreeUsesRemaining, decrementFreeUses } from '../services/supabaseClient';
@@ -83,16 +84,27 @@ export default function ChatInterface() {
     }
   };
 
-  const handleUpgrade = () => {
-    const TEST_MODE = true;
-    
-    if (TEST_MODE) {
-      alert('Test mode: Stripe payment would process here.');
+const handleUpgrade = async () => {
+  try {
+    const response = await fetch('/api/createCheckout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    const { sessionId, error } = await response.json();
+
+    if (error) {
+      alert('Error: ' + error);
       return;
     }
-    
-    window.location.href = 'https://buy.stripe.com/your-payment-link';
-  };
+
+    const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+    await stripe.redirectToCheckout({ sessionId });
+  } catch (err) {
+    console.error('Checkout error:', err);
+    alert('Failed to start checkout. Please try again.');
+  }
+};
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

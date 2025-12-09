@@ -44,12 +44,12 @@ export default function PaywallModal({ onUpgrade }) {
           </p>
         </div>
 
-        <button
-          onClick={onUpgrade}
-          className="w-full bg-amber-700 hover:bg-amber-800 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors mb-3 text-sm sm:text-base"
-        >
-          Upgrade Now
-        </button>
+    <button
+  onClick={onUpgrade}
+  className="w-full bg-amber-700 hover:bg-amber-800 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors mb-3 text-sm sm:text-base"
+>
+  Upgrade Now - $9
+</button>
 
         <button
           onClick={() => window.location.reload()}
