@@ -22,10 +22,6 @@ export default function ChatInterface() {
     setLoading(true);
 
     try {
-      const user = await getCurrentUser();
-      
-      }
-
       const [analysis, advice] = await Promise.all([
         analyzeEmotion(dilemma),
         generateStoicAdvice(dilemma),
