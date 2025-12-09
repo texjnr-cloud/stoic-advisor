@@ -33,12 +33,19 @@ export default function ChatInterface() {
         return;
       }
 
-      // Check if paid
-      const paid = await isPaidUser(user.id);
-      setIsPaid(paid);
+     // Check free uses first
+const remaining = await getUserFreeUsesRemaining(user.id);
+setFreeUsesRemaining(remaining);
 
-      // If not paid, check free uses
-      if (!paid) {
+const paid = await isPaidUser(user.id);
+setIsPaid(paid);
+
+// If not paid, check free uses
+if (!paid && remaining <= 0) {
+  setShowPaywall(true);
+  setLoading(false);
+  return;
+}
         const remaining = await getUserFreeUsesRemaining(user.id);
         setFreeUsesRemaining(remaining);
 
