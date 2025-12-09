@@ -19,16 +19,17 @@ export default function ChatInterface() {
   const [freeUsesRemaining, setFreeUsesRemaining] = useState(1);
 
   useEffect(() => {
-    const checkFreeUses = async () => {
-      const user = await getCurrentUser();
-      if (user) {
-        const remaining = await getUserFreeUsesRemaining(user.id);
-        setFreeUsesRemaining(remaining);
-      }
-    };
+  const checkFreeUses = async () => {
+    const user = await getCurrentUser();
+    if (user) {
+      const remaining = await getUserFreeUsesRemaining(user.id);
+      console.log('Loaded free uses from DB:', remaining);
+      setFreeUsesRemaining(remaining);
+    }
+  };
 
-    checkFreeUses();
-  }, []);
+  checkFreeUses();
+}, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
