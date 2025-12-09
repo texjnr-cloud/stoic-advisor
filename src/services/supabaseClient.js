@@ -9,17 +9,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-/**
- * Get current user from auth session
- */
 export async function getCurrentUser() {
   const { data: { user } } = await supabase.auth.getUser();
   return user;
 }
 
-/**
- * Get user's free uses remaining
- */
 export async function getUserFreeUsesRemaining(userId) {
   const { data, error } = await supabase
     .from('users')
@@ -35,32 +29,33 @@ export async function getUserFreeUsesRemaining(userId) {
   return data?.free_uses_remaining || 3;
 }
 
-/**
- * Decrement free uses by 1
- */
 export async function decrementFreeUses(userId) {
-  const remaining = await getUserFreeUsesRemaining(userId);
-  
-  if (remaining <= 0) {
-    return { can_use: false, remaining: 0 };
+  try {
+    const remaining = await getUserFreeUsesRemaining(userId);
+    
+    if (remaining <= 0) {
+      return { can_use: false, remaining: 0 };
+    }
+
+    const newRemaining = remaining - 1;
+
+    const { error } = await supabase
+      .from('users')
+      .update({ free_uses_remaining: newRemaining })
+      .eq('id', userId);
+
+    if (error) {
+      console.error('Error decrementing free uses:', error);
+      return { can_use: true, remaining: newRemaining };
+    }
+
+    return { can_use: true, remaining: newRemaining };
+  } catch (err) {
+    console.error('Error in decrementFreeUses:', err);
+    return { can_use: true, remaining: 3 };
   }
-
-  const { error } = await supabase
-    .from('users')
-    .update({ free_uses_remaining: remaining - 1 })
-    .eq('id', userId);
-
-  if (error) {
-    console.error('Error decrementing free uses:', error);
-    return { can_use: true, remaining: remaining - 1 };
-  }
-
-  return { can_use: true, remaining: remaining - 1 };
 }
 
-/**
- * Check if user is paid
- */
 export async function isPaidUser(userId) {
   const { data, error } = await supabase
     .from('users')
@@ -76,9 +71,6 @@ export async function isPaidUser(userId) {
   return data?.is_paid || false;
 }
 
-/**
- * Get user profile with tier and query count
- */
 export async function getUserProfile(userId) {
   const { data, error } = await supabase
     .from('users')
@@ -90,9 +82,6 @@ export async function getUserProfile(userId) {
   return data;
 }
 
-/**
- * Reset monthly query count if needed
- */
 export async function resetMonthlyQueriesIfNeeded(userId) {
   const { data, error } = await supabase
     .rpc('reset_monthly_queries');
@@ -102,9 +91,6 @@ export async function resetMonthlyQueriesIfNeeded(userId) {
   }
 }
 
-/**
- * Check if user can make a query (tier + query limit)
- */
 export async function canMakeQuery(userId) {
   const profile = await getUserProfile(userId);
   
@@ -124,9 +110,6 @@ export async function canMakeQuery(userId) {
   return { can_query: true, reason: null };
 }
 
-/**
- * Increment query count
- */
 export async function incrementQueryCount(userId) {
   const { data, error } = await supabase
     .rpc('increment_query_count', { user_id: userId });
@@ -135,9 +118,6 @@ export async function incrementQueryCount(userId) {
   return data;
 }
 
-/**
- * Create a new scenario (user's dilemma)
- */
 export async function createScenario(userId, title, description) {
   const { data, error } = await supabase
     .from('scenarios')
@@ -153,9 +133,6 @@ export async function createScenario(userId, title, description) {
   return data;
 }
 
-/**
- * Get all scenarios for a user
- */
 export async function getScenarios(userId) {
   const { data, error } = await supabase
     .from('scenarios')
@@ -167,9 +144,6 @@ export async function getScenarios(userId) {
   return data;
 }
 
-/**
- * Get a specific scenario with its response
- */
 export async function getScenarioWithResponse(scenarioId) {
   const { data, error } = await supabase
     .from('scenarios')
@@ -185,9 +159,6 @@ export async function getScenarioWithResponse(scenarioId) {
   return data;
 }
 
-/**
- * Delete a scenario
- */
 export async function deleteScenario(scenarioId) {
   const { error } = await supabase
     .from('scenarios')
@@ -197,9 +168,6 @@ export async function deleteScenario(scenarioId) {
   if (error) throw error;
 }
 
-/**
- * Save a response (Marcus Aurelius advice)
- */
 export async function saveResponse(scenarioId, responseData) {
   const { data, error } = await supabase
     .from('responses')
@@ -216,9 +184,6 @@ export async function saveResponse(scenarioId, responseData) {
   return data;
 }
 
-/**
- * Get response for a scenario
- */
 export async function getResponse(scenarioId) {
   const { data, error } = await supabase
     .from('responses')
@@ -230,9 +195,6 @@ export async function getResponse(scenarioId) {
   return data || null;
 }
 
-/**
- * Create journal prompts for a scenario
- */
 export async function createJournalPrompts(scenarioId, prompts) {
   const entries = prompts.map(prompt => ({
     scenario_id: scenarioId,
@@ -250,9 +212,6 @@ export async function createJournalPrompts(scenarioId, prompts) {
   return data;
 }
 
-/**
- * Get journal entries for a scenario
- */
 export async function getJournalEntries(scenarioId) {
   const { data, error } = await supabase
     .from('journal_entries')
@@ -264,9 +223,6 @@ export async function getJournalEntries(scenarioId) {
   return data;
 }
 
-/**
- * Update a journal entry with user's answer
- */
 export async function updateJournalEntry(entryId, answer) {
   const { data, error } = await supabase
     .from('journal_entries')
