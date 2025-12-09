@@ -6,7 +6,7 @@ import EmotionAnalysis from './EmotionAnalysis';
 import ResponseCard from './ResponseCard';
 import ActionPlan from './ActionPlan';
 import JournalPrompts from './JournalPrompts';
-import PaywallModal from './PaywallModal';
+import UpgradeSection from './UpgradeSection';
 
 export default function ChatInterface() {
   const [dilemma, setDilemma] = useState('');
@@ -16,7 +16,6 @@ export default function ChatInterface() {
   const [journalPrompts, setJournalPrompts] = useState(null);
   const [emotionAnalysis, setEmotionAnalysis] = useState(null);
   const [error, setError] = useState(null);
-  const [showPaywall, setShowPaywall] = useState(false);
   const [freeUsesRemaining, setFreeUsesRemaining] = useState(1);
 
   useEffect(() => {
@@ -47,15 +46,14 @@ export default function ChatInterface() {
       }
 
       const remaining = await getUserFreeUsesRemaining(user.id);
-console.log('Remaining uses check:', remaining);
-setFreeUsesRemaining(remaining);
+      console.log('Remaining uses check:', remaining);
+      setFreeUsesRemaining(remaining);
 
-if (remaining <= 0) {
-  console.log('Showing paywall');
-  setShowPaywall(true);
-  setLoading(false);
-  return;
-}
+      if (remaining <= 0) {
+        console.log('No more free uses');
+        setLoading(false);
+        return;
+      }
 
       const [analysis, advice] = await Promise.all([
         analyzeEmotion(dilemma),
@@ -127,8 +125,8 @@ if (remaining <= 0) {
         <form onSubmit={handleSubmit} className="mb-6 sm:mb-8">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200">
             <label htmlFor="dilemma" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">What's troubling you?</label>
-            <textarea id="dilemma" value={dilemma} onChange={(e) => setDilemma(e.target.value)} placeholder="Describe the situation you're facing..." className="w-full p-3 sm:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none text-sm sm:text-base" rows="4" disabled={loading} />
-            <button type="submit" disabled={loading || !dilemma.trim()} className="mt-3 sm:mt-4 w-full bg-amber-700 hover:bg-amber-800 disabled:bg-gray-400 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base">{loading ? 'Consulting Marcus...' : 'Seek Guidance'}</button>
+            <textarea id="dilemma" value={dilemma} onChange={(e) => setDilemma(e.target.value)} placeholder="Describe the situation you're facing..." className="w-full p-3 sm:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none text-sm sm:text-base" rows="4" disabled={loading || freeUsesRemaining <= 0} />
+            <button type="submit" disabled={loading || !dilemma.trim() || freeUsesRemaining <= 0} className="mt-3 sm:mt-4 w-full bg-amber-700 hover:bg-amber-800 disabled:bg-gray-400 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base">{loading ? 'Consulting Marcus...' : freeUsesRemaining <= 0 ? 'Upgrade to Continue' : 'Seek Guidance'}</button>
           </div>
         </form>
 
@@ -148,10 +146,9 @@ if (remaining <= 0) {
             <ResponseCard response={response} />
             {actionPlan && <ActionPlan plan={actionPlan} />}
             {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
+            {freeUsesRemaining <= 0 && <UpgradeSection onUpgrade={handleUpgrade} />}
           </div>
         )}
-
-        {showPaywall && <PaywallModal onUpgrade={handleUpgrade} />}
       </div>
     </div>
   );
