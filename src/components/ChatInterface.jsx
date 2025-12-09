@@ -47,10 +47,11 @@ export default function ChatInterface() {
       }
 
       const remaining = await getUserFreeUsesRemaining(user.id);
-      setFreeUsesRemaining(remaining);
+console.log('Remaining uses check:', remaining);
+setFreeUsesRemaining(remaining);
 
-      if (remaining <= 0) {
-  console.log('Showing paywall, remaining:', remaining);
+if (remaining <= 0) {
+  console.log('Showing paywall');
   setShowPaywall(true);
   setLoading(false);
   return;
