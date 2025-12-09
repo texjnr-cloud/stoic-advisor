@@ -33,29 +33,22 @@ export default function ChatInterface() {
         return;
       }
 
-     // Check free uses first
-const remaining = await getUserFreeUsesRemaining(user.id);
-setFreeUsesRemaining(remaining);
+      // Check free uses first
+      const remaining = await getUserFreeUsesRemaining(user.id);
+      setFreeUsesRemaining(remaining);
 
-const paid = await isPaidUser(user.id);
-setIsPaid(paid);
+      const paid = await isPaidUser(user.id);
+      setIsPaid(paid);
 
-// If not paid, check free uses
-if (!paid && remaining <= 0) {
-  setShowPaywall(true);
-  setLoading(false);
-  return;
-}
-        const remaining = await getUserFreeUsesRemaining(user.id);
-        setFreeUsesRemaining(remaining);
+      // If not paid and no uses left, show paywall
+      if (!paid && remaining <= 0) {
+        setShowPaywall(true);
+        setLoading(false);
+        return;
+      }
 
-        if (remaining <= 0) {
-          setShowPaywall(true);
-          setLoading(false);
-          return;
-        }
-
-        // Decrement free uses
+      // If not paid, decrement free uses
+      if (!paid) {
         const result = await decrementFreeUses(user.id);
         setFreeUsesRemaining(result.remaining);
       }
@@ -119,55 +112,4 @@ if (!paid && remaining <= 0) {
               placeholder="Describe the situation you're facing..."
               className="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
               rows="6"
-              disabled={loading}
-            />
-            
-            <button
-              type="submit"
-              disabled={loading || !dilemma.trim()}
-              className="mt-4 w-full bg-amber-700 hover:bg-amber-800 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-            >
-              {loading ? 'Consulting Marcus...' : 'Seek Guidance'}
-            </button>
-          </div>
-        </form>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-            {error}
-          </div>
-        )}
-
-        {loading && (
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-700 mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">Consulting Marcus Aurelius...</p>
-            <p className="text-sm text-gray-500 mt-2">Analyzing emotion, belief, and generating guidance...</p>
-          </div>
-        )}
-
-        {response && (
-          <div className="space-y-6">
-            <EmotionAnalysis analysis={emotionAnalysis} />
-            <ResponseCard response={response} />
-            {!isPaid && (
-  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-    <p className="text-gray-700 mb-4">
-      <span className="font-semibold">Unlock unlimited questions, 4-week action plans, and journal prompts</span> with a paid subscription
-    </p>
-                <button
-                  onClick={handleUpgrade}
-                  className="bg-amber-700 hover:bg-amber-800 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
-                >
-                  Upgrade to Paid
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {showPaywall && <PaywallModal onUpgrade={handleUpgrade} />}
-      </div>
-    </div>
-  );
-}
+              disabled={loading
