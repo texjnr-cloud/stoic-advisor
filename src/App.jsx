@@ -81,12 +81,17 @@ function LoginPage() {
           if (signUpError) throw signUpError;
 
           // Create user profile in public.users table
-          await supabase.from('users').insert({
-            id: data.user.id,
-            email: data.user.email,
-            free_uses_remaining: 1,
-            is_paid: false,
-          });
+const { error: profileError } = await supabase.from('users').insert({
+  id: data.user.id,
+  email: data.user.email,
+  free_uses_remaining: 1,
+  is_paid: false,
+});
+
+if (profileError) {
+  console.error('Profile creation error:', profileError);
+  throw profileError;
+}
 
           // Auto-login after signup
           const { error: autoLoginError } = await supabase.auth.signInWithPassword({
