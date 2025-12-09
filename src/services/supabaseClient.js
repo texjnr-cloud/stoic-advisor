@@ -23,7 +23,7 @@ export async function getUserFreeUsesRemaining(userId) {
 
   if (error) {
     console.error('Error getting free uses:', error);
-    return 3;
+    return 1;
   }
 
   return data?.free_uses_remaining || 3;
