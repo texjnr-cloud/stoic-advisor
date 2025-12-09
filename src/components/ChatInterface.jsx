@@ -140,15 +140,13 @@ export default function ChatInterface() {
           </div>
         )}
 
-        {response && (
-          <div className="space-y-4 sm:space-y-6">
-            <EmotionAnalysis analysis={emotionAnalysis} />
-            <ResponseCard response={response} />
-            {actionPlan && <ActionPlan plan={actionPlan} />}
-            {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
-            {freeUsesRemaining <= 0 && <UpgradeSection onUpgrade={handleUpgrade} />}
-          </div>
-        )}
+       {response && (
+  <div className="space-y-4 sm:space-y-6">
+    <EmotionAnalysis analysis={emotionAnalysis} />
+    <ResponseCard response={response} />
+    {freeUsesRemaining <= 0 && <UpgradeSection onUpgrade={handleUpgrade} />}
+  </div>
+)}
       </div>
     </div>
   );
