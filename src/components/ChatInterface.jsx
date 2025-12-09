@@ -25,6 +25,7 @@ export default function ChatInterface() {
 
     setError(null);
     setLoading(true);
+    setShowPaywall(false);
 
     try {
       const user = await getCurrentUser();
@@ -43,13 +44,13 @@ export default function ChatInterface() {
       setIsPaid(paid);
 
       if (!paid && remaining <= 0) {
-        console.log('Showing paywall');
+        console.log('Showing paywall - remaining is 0 and not paid');
         setShowPaywall(true);
         setLoading(false);
         return;
       }
 
-      if (!paid) {
+      if (!paid && remaining > 0) {
         const result = await decrementFreeUses(user.id);
         console.log('Decremented uses:', result);
         setFreeUsesRemaining(result.remaining);
@@ -113,6 +114,8 @@ export default function ChatInterface() {
           </div>
         )}
 
+        {showPaywall && <PaywallModal onUpgrade={handleUpgrade} />}
+
         {response && (
           <div className="space-y-6">
             <EmotionAnalysis analysis={emotionAnalysis} />
@@ -127,8 +130,6 @@ export default function ChatInterface() {
             )}
           </div>
         )}
-
-        {showPaywall && <PaywallModal onUpgrade={handleUpgrade} />}
       </div>
     </div>
   );
