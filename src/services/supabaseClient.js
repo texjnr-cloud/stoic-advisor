@@ -52,7 +52,7 @@ export async function decrementFreeUses(userId) {
     return { can_use: true, remaining: newRemaining };
   } catch (err) {
     console.error('Error in decrementFreeUses:', err);
-    return { can_use: true, remaining: 3 };
+    return { can_use: true, remaining: 1 };
   }
 }
 
