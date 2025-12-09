@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { getCurrentUser, getUserFreeUsesRemaining, decrementFreeUses, isPaidUser } from '../services/supabaseClient';
+import { getCurrentUser, isPaidUser } from '../services/supabaseClient';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
 import EmotionAnalysis from './EmotionAnalysis';
 import ResponseCard from './ResponseCard';
 import ActionPlan from './ActionPlan';
 import JournalPrompts from './JournalPrompts';
-import PaywallModal from './PaywallModal';
 
 export default function ChatInterface() {
   const [dilemma, setDilemma] = useState('');
@@ -15,8 +14,6 @@ export default function ChatInterface() {
   const [journalPrompts, setJournalPrompts] = useState(null);
   const [emotionAnalysis, setEmotionAnalysis] = useState(null);
   const [error, setError] = useState(null);
-  const [showPaywall, setShowPaywall] = useState(false);
-  const [freeUsesRemaining, setFreeUsesRemaining] = useState(3);
   const [isPaid, setIsPaid] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -25,7 +22,6 @@ export default function ChatInterface() {
 
     setError(null);
     setLoading(true);
-    setShowPaywall(false);
 
     try {
       const user = await getCurrentUser();
@@ -35,26 +31,8 @@ export default function ChatInterface() {
         return;
       }
 
-      const remaining = await getUserFreeUsesRemaining(user.id);
-      console.log('Remaining uses:', remaining);
-      setFreeUsesRemaining(remaining);
-
       const paid = await isPaidUser(user.id);
-      console.log('Is paid:', paid);
       setIsPaid(paid);
-
-      if (!paid && remaining <= 0) {
-        console.log('Showing paywall - remaining is 0 and not paid');
-        setShowPaywall(true);
-        setLoading(false);
-        return;
-      }
-
-      if (!paid && remaining > 0) {
-        const result = await decrementFreeUses(user.id);
-        console.log('Decremented uses:', result);
-        setFreeUsesRemaining(result.remaining);
-      }
 
       const [analysis, advice] = await Promise.all([
         analyzeEmotion(dilemma),
@@ -84,16 +62,15 @@ export default function ChatInterface() {
   };
 
   const handleUpgrade = () => {
-  const TEST_MODE = true; // Set to false in production
-  
-  if (TEST_MODE) {
-    alert('Test mode: Payment skipped. Marking user as paid...');
-    // In real app, this would call Stripe
-    return;
-  }
-  
-  window.location.href = 'https://buy.stripe.com/your-payment-link';
-};
+    const TEST_MODE = true;
+    
+    if (TEST_MODE) {
+      alert('Test mode: Payment skipped. In production, redirects to Stripe.');
+      return;
+    }
+    
+    window.location.href = 'https://buy.stripe.com/your-payment-link';
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-6">
@@ -101,7 +78,6 @@ export default function ChatInterface() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-serif font-bold text-gray-900 mb-2">Stoic Advisor</h1>
           <p className="text-lg text-gray-600">Seek wisdom from Marcus Aurelius</p>
-          {!isPaid && <p className="text-sm text-gray-500 mt-2">Free uses remaining: <span className="font-semibold">{freeUsesRemaining}/3</span></p>}
         </div>
 
         <form onSubmit={handleSubmit} className="mb-8">
@@ -122,8 +98,6 @@ export default function ChatInterface() {
           </div>
         )}
 
-        {showPaywall && <PaywallModal onUpgrade={handleUpgrade} />}
-
         {response && (
           <div className="space-y-6">
             <EmotionAnalysis analysis={emotionAnalysis} />
@@ -131,9 +105,29 @@ export default function ChatInterface() {
             {isPaid && actionPlan && <ActionPlan plan={actionPlan} />}
             {isPaid && journalPrompts && <JournalPrompts prompts={journalPrompts} />}
             {!isPaid && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                <p className="text-gray-700 mb-4"><span className="font-semibold">Unlock unlimited questions, 4-week action plans, and journal prompts</span> with a paid subscription</p>
-                <button onClick={handleUpgrade} className="bg-amber-700 hover:bg-amber-800 text-white font-semibold py-2 px-6 rounded-lg transition-colors">Upgrade to Paid</button>
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-300 rounded-lg p-8">
+                <div className="flex items-start gap-4">
+                  <div className="text-3xl">✨</div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2">Unlock Full Access</h3>
+                    <p className="text-gray-700 mb-4">Get 4-week action plans and journal prompts to deepen your practice.</p>
+                    <div className="space-y-2 mb-6">
+                      <div className="flex items-center gap-2">
+                        <span className="text-amber-700 font-bold">✓</span>
+                        <span className="text-gray-700">4-week personalized action plans</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-amber-700 font-bold">✓</span>
+                        <span className="text-gray-700">Reflection journal prompts</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-amber-700 font-bold">✓</span>
+                        <span className="text-gray-700">Unlimited questions</span>
+                      </div>
+                    </div>
+                    <button onClick={handleUpgrade} className="bg-amber-700 hover:bg-amber-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors">Pay $9 - Lifetime Access</button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
