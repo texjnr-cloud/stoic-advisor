@@ -84,8 +84,16 @@ export default function ChatInterface() {
   };
 
   const handleUpgrade = () => {
-    window.location.href = 'https://buy.stripe.com/your-payment-link';
-  };
+  const TEST_MODE = true; // Set to false in production
+  
+  if (TEST_MODE) {
+    alert('Test mode: Payment skipped. Marking user as paid...');
+    // In real app, this would call Stripe
+    return;
+  }
+  
+  window.location.href = 'https://buy.stripe.com/your-payment-link';
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-6">
