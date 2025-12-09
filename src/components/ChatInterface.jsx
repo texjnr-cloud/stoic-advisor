@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { saveScenarioWithResponse } from '../services/supabaseClient';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
 import EmotionAnalysis from './EmotionAnalysis';
 import ResponseCard from './ResponseCard';
@@ -37,6 +38,8 @@ export default function ChatInterface() {
       
       setActionPlan(plan);
       setJournalPrompts(prompts);
+
+      await saveScenarioWithResponse(dilemma, analysis, advice, plan, prompts);
 
       setDilemma('');
     } catch (err) {
