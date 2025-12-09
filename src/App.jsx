@@ -60,36 +60,41 @@ function LoginPage() {
         return;
       }
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-  email,
-  password,
-});
-
-if (signInError) throw signInError;
-
-// Create user profile
-const user = (await supabase.auth.getUser()).data.user;
-await supabase.from('users').insert({
-  id: user.id,
-  email: user.email,
-  free_uses_remaining: 1,
-  is_paid: false,
-});
-
-if (signUpError) throw signUpError;
-
-const { error: signInError } = await supabase.auth.signInWithPassword({
-  email,
-  password,
-});
-
-if (signInError) throw signInError;
-
-setMessage('✓ Account created! Welcome to Stoic Advisor.');
-setEmail('');
-setPassword('');
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (signInError) throw signInError;
+    } catch (err) {
+      console.error('Auth error:', err);
+      
+      if (err.message.includes('Invalid login credentials')) {
+        setMessage('Account not found. Creating new account...');
+        
+        try {
+          const { data, error: signUpError } = await supabase.auth.signUp({
+            email,
+            password,
+          });
           
           if (signUpError) throw signUpError;
+
+          // Create user profile in public.users table
+          await supabase.from('users').insert({
+            id: data.user.id,
+            email: data.user.email,
+            free_uses_remaining: 1,
+            is_paid: false,
+          });
+
+          // Auto-login after signup
+          const { error: autoLoginError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (autoLoginError) throw autoLoginError;
           
           setMessage('✓ Account created! Welcome to Stoic Advisor.');
           setEmail('');
