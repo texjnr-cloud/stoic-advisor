@@ -1,9 +1,9 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+
+  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -14,9 +14,8 @@ export default async function handler(req, res) {
             currency: 'usd',
             product_data: {
               name: 'Stoic Advisor - Lifetime Access',
-              description: 'Unlimited questions, 4-week action plans, journal prompts',
             },
-            unit_amount: 900, // $9.00 in cents
+            unit_amount: 900,
           },
           quantity: 1,
         },
@@ -28,7 +27,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ sessionId: session.id });
   } catch (error) {
-    console.error('Stripe error:', error);
+    console.error('Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
