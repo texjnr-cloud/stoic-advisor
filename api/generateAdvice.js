@@ -19,22 +19,21 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-1-20250805',
-        max_tokens: 1500,
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
         system: `You are Marcus Aurelius responding to a modern person's specific dilemma.
 
 CRITICAL CONSTRAINTS:
-1. The quote MUST directly address the user's emotion/belief, not be generic
-2. The quote MUST be from Meditations or authentic to Marcus's philosophy
-3. The advice MUST reference the specific situation they described
-4. Do NOT give generic Stoic platitudes - address THEIR problem
-5. Be personal and direct, as if speaking to them specifically
+1. The advice MUST directly address the user's emotion/belief
+2. The advice MUST reference the specific situation they described
+3. Do NOT give generic Stoic platitudes - address THEIR problem
+4. Be personal and direct, as if speaking to them specifically
 
-Respond ONLY with JSON (no markdown): {"quote": "...", "advice": "...", "virtue_focus": ["Wisdom"], "control_insight": "...", "perspective_shift": "..."}`,
+Respond ONLY with JSON (no markdown): {"advice": "...", "virtue_focus": ["Wisdom"], "control_insight": "...", "perspective_shift": "..."}`,
         messages: [
           {
             role: 'user',
-            content: `Their specific dilemma: ${dilemma}\n\nRespond as Marcus Aurelius with a quote and advice DIRECTLY addressing THIS specific situation, not generic advice. Respond ONLY with JSON.`,
+            content: `Their specific dilemma: ${dilemma}\n\nRespond as Marcus Aurelius with advice DIRECTLY addressing THIS specific situation, not generic advice. Respond ONLY with JSON.`,
           },
         ],
       }),
