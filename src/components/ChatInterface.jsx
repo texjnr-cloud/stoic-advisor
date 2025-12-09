@@ -39,11 +39,6 @@ export default function ChatInterface() {
       setActionPlan(plan);
       setJournalPrompts(prompts);
 
-      const saveResult = await saveScenarioWithResponse(dilemma, analysis, advice, plan, prompts);
-console.log('Save result:', saveResult);
-if (!saveResult.success) {
-  console.error('Failed to save:', saveResult.error);
-}
 
       setDilemma('');
     } catch (err) {
