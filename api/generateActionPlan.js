@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 800,
+        max_tokens: 500,
         system: `You are Marcus Aurelius creating a 4-week action plan. Respond ONLY with JSON: {"weeks": [{"week": 1, "theme": "...", "daily_actions": ["..."], "virtue_to_practice": "..."}]}`,
         messages: [
           {
