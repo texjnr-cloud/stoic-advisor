@@ -127,7 +127,7 @@ export default function ChatInterface() {
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200">
             <label htmlFor="dilemma" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">What's troubling you?</label>
             <textarea ... disabled={loading} />
-<button ... disabled={loading || !dilemma.trim()} ...>
+            <button ... disabled={loading || !dilemma.trim()} ...>
           </div>
         </form>
 
