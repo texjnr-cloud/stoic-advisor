@@ -131,7 +131,11 @@ export default function ChatInterface() {
           </div>
         </form>
 
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-6 text-xs sm:text-base">{error}</div>}
+       {freeUsesRemaining <= 0 && !response && (
+  <UpgradeSection onUpgrade={handleUpgrade} />
+)}
+
+{error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-6 text-xs sm:text-base">{error}</div>}
 
         {loading && (
           <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 text-center">
