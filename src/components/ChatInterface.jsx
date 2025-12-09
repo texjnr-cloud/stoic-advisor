@@ -143,13 +143,11 @@ export default function ChatInterface() {
           <div className="space-y-6">
             <EmotionAnalysis analysis={emotionAnalysis} />
             <ResponseCard response={response} />
-            {isPaid && actionPlan && <ActionPlan plan={actionPlan} />}
-            {isPaid && journalPrompts && <JournalPrompts prompts={journalPrompts} />}
             {!isPaid && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                <p className="text-gray-700 mb-4">
-                  <span className="font-semibold">Unlock 4-week action plans and journal prompts</span> with a paid subscription
-                </p>
+  <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+    <p className="text-gray-700 mb-4">
+      <span className="font-semibold">Unlock unlimited questions, 4-week action plans, and journal prompts</span> with a paid subscription
+    </p>
                 <button
                   onClick={handleUpgrade}
                   className="bg-amber-700 hover:bg-amber-800 text-white font-semibold py-2 px-6 rounded-lg transition-colors"
