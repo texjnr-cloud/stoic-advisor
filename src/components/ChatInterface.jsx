@@ -50,10 +50,11 @@ export default function ChatInterface() {
       setFreeUsesRemaining(remaining);
 
       if (remaining <= 0) {
-        setShowPaywall(true);
-        setLoading(false);
-        return;
-      }
+  console.log('Showing paywall, remaining:', remaining);
+  setShowPaywall(true);
+  setLoading(false);
+  return;
+}
 
       const [analysis, advice] = await Promise.all([
         analyzeEmotion(dilemma),
