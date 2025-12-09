@@ -30,16 +30,20 @@ export default function ChatInterface() {
       const user = await getCurrentUser();
       if (!user) {
         setError('Please log in to continue');
+        setLoading(false);
         return;
       }
 
       const remaining = await getUserFreeUsesRemaining(user.id);
+      console.log('Remaining uses:', remaining);
       setFreeUsesRemaining(remaining);
 
       const paid = await isPaidUser(user.id);
+      console.log('Is paid:', paid);
       setIsPaid(paid);
 
       if (!paid && remaining <= 0) {
+        console.log('Showing paywall');
         setShowPaywall(true);
         setLoading(false);
         return;
@@ -47,20 +51,25 @@ export default function ChatInterface() {
 
       if (!paid) {
         const result = await decrementFreeUses(user.id);
+        console.log('Decremented uses:', result);
         setFreeUsesRemaining(result.remaining);
       }
 
-      const analysis = await analyzeEmotion(dilemma);
-      setEmotionAnalysis(analysis);
+      const [analysis, advice] = await Promise.all([
+        analyzeEmotion(dilemma),
+        generateStoicAdvice(dilemma),
+      ]);
 
-      const advice = await generateStoicAdvice(dilemma);
+      setEmotionAnalysis(analysis);
       setResponse(advice);
 
       if (paid) {
-        const plan = await generateActionPlan(dilemma, advice.advice);
+        const [plan, prompts] = await Promise.all([
+          generateActionPlan(dilemma, advice.advice),
+          generateJournalPrompts(dilemma),
+        ]);
+        
         setActionPlan(plan);
-
-        const prompts = await generateJournalPrompts(dilemma);
         setJournalPrompts(prompts);
       }
 
