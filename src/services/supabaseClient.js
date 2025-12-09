@@ -18,17 +18,21 @@ export async function getUserFreeUsesRemaining(userId) {
   const { data, error } = await supabase
     .from('users')
     .select('free_uses_remaining')
-    .eq('id', userId)
-    .single();
+    .eq('id', userId);
 
   if (error) {
     console.error('Error getting free uses:', error);
     return 1;
   }
 
-  return data?.free_uses_remaining ?? 1;
-}
+  if (!data || data.length === 0) {
+    console.log('No user found');
+    return 1;
+  }
 
+  console.log('Free uses from DB:', data[0].free_uses_remaining);
+  return data[0].free_uses_remaining ?? 1;
+}
 export async function decrementFreeUses(userId) {
   try {
     const remaining = await getUserFreeUsesRemaining(userId);
