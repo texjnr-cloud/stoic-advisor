@@ -19,8 +19,8 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-1-20250805',
-        max_tokens: 500,
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
         system: `You are a Stoic psychologist. Analyze the user's dilemma and identify:
 1. The core emotion (Fear, Anger, Shame, Anxiety, Confusion, Attachment, Desire, Frustration)
 2. The underlying belief/judgment driving this emotion
