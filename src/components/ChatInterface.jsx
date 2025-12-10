@@ -97,7 +97,7 @@ export default function ChatInterface() {
       <div className="w-full max-w-2xl mx-auto">
         <div className="flex items-center justify-between mb-6 sm:mb-8">
           <div className="text-center flex-1">
-            <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 mb-1 sm:mb-2">Stoic Advisor</h1>
+            <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 mb-1 sm:mb-2">Stoic Help</h1>
             <p className="text-xs sm:text-lg text-gray-600">Seek wisdom from Marcus Aurelius</p>
             {freeUsesRemaining > 0 && <p className="text-xs text-gray-500 mt-1">Free uses remaining: <span className="font-semibold">{freeUsesRemaining}</span></p>}
           </div>
