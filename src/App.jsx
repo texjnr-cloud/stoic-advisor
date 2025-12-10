@@ -101,7 +101,7 @@ if (profileError) {
 
           if (autoLoginError) throw autoLoginError;
           
-          setMessage('✓ Account created! Welcome to Stoic Advisor.');
+          setMessage('✓ Account created! Welcome to Stoic Help.');
           setEmail('');
           setPassword('');
         } catch (signUpErr) {
@@ -120,7 +120,7 @@ if (profileError) {
       <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8 max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl font-serif font-bold text-gray-900 mb-2">
-            Stoic Advisor
+            Stoic Help
           </h1>
           <p className="text-gray-600 text-base sm:text-lg">
             Seek wisdom from Marcus Aurelius
