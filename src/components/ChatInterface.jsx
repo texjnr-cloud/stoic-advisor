@@ -85,25 +85,8 @@ export default function ChatInterface() {
   };
 
   const handleUpgrade = async () => {
-    try {
-      const response = await fetch('/api/createCheckout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      });
-
-      const { sessionId, error } = await response.json();
-
-      if (error) {
-        alert('Error: ' + error);
-        return;
-      }
-
-      window.location.href = `https://checkout.stripe.com/pay/${sessionId}`;
-    } catch (err) {
-      console.error('Checkout error:', err);
-      alert('Failed to start checkout. Please try again.');
-    }
-  };
+  window.location.href = 'https://buy.stripe.com/bJe7sN5DScH38lJ0ph5kk00';
+};
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
