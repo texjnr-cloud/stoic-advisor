@@ -281,8 +281,9 @@ export async function saveScenarioWithResponse(userId, dilemma, analysis, advice
 
     return { success: true, scenario_id: scenario.id };
   } catch (err) {
-    console.error('Error saving response:', err);
-    return { success: false, error: err.message };
-  }
+  console.error('Error saving response:', err);
+  console.error('Error details:', err.message, err.code, err.details);
+  return { success: false, error: err.message };
+}
 }
 export default supabase;
