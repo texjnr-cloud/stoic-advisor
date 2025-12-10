@@ -94,12 +94,7 @@ if (profileError) {
 }
 
           // Auto-login after signup
-          const { error: autoLoginError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-
-          if (autoLoginError) throw autoLoginError;
+         setMessage('✓ Account created! Please log in with your credentials.');
           
           setMessage('✓ Account created! Welcome to Stoic Help.');
           setEmail('');
