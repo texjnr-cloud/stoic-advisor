@@ -50,12 +50,11 @@ export default function ChatInterface() {
       console.log('Remaining uses check:', remaining);
       setFreeUsesRemaining(remaining);
 
-      // PAYWALL DISABLED FOR RECORDING - uncomment to re-enable
-      // if (remaining <= 0) {
-      //   console.log('No more free uses');
-      //   setLoading(false);
-      //   return;
-      // }
+   if (remaining <= 0) {
+  console.log('No more free uses');
+  setLoading(false);
+  return;
+}
 
       const [analysis, advice] = await Promise.all([
         analyzeEmotion(dilemma),
