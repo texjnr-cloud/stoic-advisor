@@ -1,12 +1,11 @@
 import { supabase } from '../services/supabaseClient';
 import React, { useState, useEffect } from 'react';
-import { getCurrentUser, getUserFreeUsesRemaining, decrementFreeUses, saveScenarioWithResponse } from '../services/supabaseClient';
+import { getCurrentUser } from '../services/supabaseClient';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
 import EmotionAnalysis from './EmotionAnalysis';
 import ResponseCard from './ResponseCard';
 import ActionPlan from './ActionPlan';
 import JournalPrompts from './JournalPrompts';
-import UpgradeSection from './UpgradeSection';
 
 export default function ChatInterface() {
   const [dilemma, setDilemma] = useState('');
@@ -16,20 +15,6 @@ export default function ChatInterface() {
   const [journalPrompts, setJournalPrompts] = useState(null);
   const [emotionAnalysis, setEmotionAnalysis] = useState(null);
   const [error, setError] = useState(null);
-  const [freeUsesRemaining, setFreeUsesRemaining] = useState(1);
-
-  useEffect(() => {
-    const checkFreeUses = async () => {
-      const user = await getCurrentUser();
-      if (user) {
-        const remaining = await getUserFreeUsesRemaining(user.id);
-        console.log('Loaded free uses from DB:', remaining);
-        setFreeUsesRemaining(remaining);
-      }
-    };
-
-    checkFreeUses();
-  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -45,16 +30,6 @@ export default function ChatInterface() {
         setLoading(false);
         return;
       }
-
-      const remaining = await getUserFreeUsesRemaining(user.id);
-      console.log('Remaining uses check:', remaining);
-      setFreeUsesRemaining(remaining);
-
-   if (remaining <= 0) {
-  console.log('No more free uses');
-  setLoading(false);
-  return;
-}
 
       const [analysis, advice] = await Promise.all([
         analyzeEmotion(dilemma),
@@ -72,13 +47,6 @@ export default function ChatInterface() {
       setActionPlan(plan);
       setJournalPrompts(prompts);
 
-      // Save conversation
-      const saveResult = await saveScenarioWithResponse(user.id, dilemma, analysis, advice, plan, prompts);
-      console.log('Conversation saved:', saveResult);
-
-      const result = await decrementFreeUses(user.id);
-      setFreeUsesRemaining(result.remaining);
-
       setDilemma('');
     } catch (err) {
       console.error('Error:', err);
@@ -86,10 +54,6 @@ export default function ChatInterface() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleUpgrade = async () => {
-    window.location.href = 'https://buy.stripe.com/test_bJedR861z7dM52GaGYcfK00';
   };
 
   const handleLogout = async () => {
@@ -103,7 +67,6 @@ export default function ChatInterface() {
           <div className="text-center flex-1">
             <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 mb-1 sm:mb-2">Stoic Help</h1>
             <p className="text-xs sm:text-lg text-gray-600">Seek wisdom from Marcus Aurelius</p>
-            {freeUsesRemaining > 0 && <p className="text-xs text-gray-500 mt-1">Free uses remaining: <span className="font-semibold">{freeUsesRemaining}</span></p>}
           </div>
           <button onClick={handleLogout} className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 underline">
             Logout
@@ -117,10 +80,6 @@ export default function ChatInterface() {
             <button type="submit" disabled={loading || !dilemma.trim()} className="mt-3 sm:mt-4 w-full bg-amber-700 hover:bg-amber-800 disabled:bg-gray-400 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base">{loading ? 'Consulting Marcus...' : 'Seek Guidance'}</button>
           </div>
         </form>
-
-        {freeUsesRemaining <= 0 && !response && (
-          <UpgradeSection onUpgrade={handleUpgrade} />
-        )}
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-6 text-xs sm:text-base">{error}</div>}
 
@@ -138,7 +97,6 @@ export default function ChatInterface() {
             <ResponseCard response={response} />
             {actionPlan && <ActionPlan plan={actionPlan} />}
             {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
-            {freeUsesRemaining <= 0 && <UpgradeSection onUpgrade={handleUpgrade} />}
           </div>
         )}
       </div>
