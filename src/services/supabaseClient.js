@@ -241,11 +241,12 @@ export async function updateJournalEntry(entryId, answer) {
   if (error) throw error;
   return data;
 }
-export async function saveScenarioWithResponse(dilemma, analysis, advice, actionPlan, journalPrompts) {
+export async function saveScenarioWithResponse(userId, dilemma, analysis, advice, actionPlan, journalPrompts) {
   try {
     const { data: scenario, error: scenarioError } = await supabase
       .from('scenarios')
       .insert({
+        user_id: userId,
         title: analysis.emotion,
         description: dilemma,
       })
