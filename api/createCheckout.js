@@ -3,31 +3,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-
   try {
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: 'Stoic Advisor - Lifetime Access',
-            },
-            unit_amount: 900,
-          },
-          quantity: 1,
-        },
-      ],
-      mode: 'payment',
-      success_url: `${req.headers.origin}/success`,
-      cancel_url: `${req.headers.origin}/`,
-    });
-
-    return res.status(200).json({ sessionId: session.id });
+    // For now, redirect to a fixed Stripe payment link
+    // You need to create this in Stripe dashboard
+    const paymentLink = 'https://checkout.stripe.com/pay/cs_live_YOUR_CHECKOUT_SESSION_ID';
+    
+    return res.status(200).json({ sessionId: paymentLink });
   } catch (error) {
-    console.error('Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
