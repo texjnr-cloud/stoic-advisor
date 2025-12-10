@@ -85,7 +85,7 @@ export default function ChatInterface() {
   };
 
   const handleUpgrade = async () => {
-  window.location.href = 'https://buy.stripe.com/bJe7sN5DScH38lJ0ph5kk00';
+ window.location.href = 'https://buy.stripe.com/test_bJedR861z7dM52GaGYcfK00';
 };
 
   const handleLogout = async () => {
