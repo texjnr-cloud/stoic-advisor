@@ -1,6 +1,6 @@
 import { supabase } from '../services/supabaseClient';
 import React, { useState, useEffect } from 'react';
-import { getCurrentUser, getUserFreeUsesRemaining, decrementFreeUses } from '../services/supabaseClient';
+import { getCurrentUser, getUserFreeUsesRemaining, decrementFreeUses, saveScenarioWithResponse } from '../services/supabaseClient';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
 import EmotionAnalysis from './EmotionAnalysis';
 import ResponseCard from './ResponseCard';
@@ -19,17 +19,17 @@ export default function ChatInterface() {
   const [freeUsesRemaining, setFreeUsesRemaining] = useState(1);
 
   useEffect(() => {
-  const checkFreeUses = async () => {
-    const user = await getCurrentUser();
-    if (user) {
-      const remaining = await getUserFreeUsesRemaining(user.id);
-      console.log('Loaded free uses from DB:', remaining);
-      setFreeUsesRemaining(remaining);
-    }
-  };
+    const checkFreeUses = async () => {
+      const user = await getCurrentUser();
+      if (user) {
+        const remaining = await getUserFreeUsesRemaining(user.id);
+        console.log('Loaded free uses from DB:', remaining);
+        setFreeUsesRemaining(remaining);
+      }
+    };
 
-  checkFreeUses();
-}, []);
+    checkFreeUses();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -72,6 +72,10 @@ export default function ChatInterface() {
       setActionPlan(plan);
       setJournalPrompts(prompts);
 
+      // Save conversation
+      const saveResult = await saveScenarioWithResponse(user.id, dilemma, analysis, advice, plan, prompts);
+      console.log('Conversation saved:', saveResult);
+
       const result = await decrementFreeUses(user.id);
       setFreeUsesRemaining(result.remaining);
 
@@ -85,8 +89,8 @@ export default function ChatInterface() {
   };
 
   const handleUpgrade = async () => {
-  window.location.href = 'https://buy.stripe.com/bJe7sN5DScH38lJ0ph5kk00';
-};
+    window.location.href = 'https://buy.stripe.com/bJe7sN5DScH38lJ0ph5kk00';
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -103,6 +107,44 @@ export default function ChatInterface() {
           </div>
           <button onClick={handleLogout} className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 underline">
             Logout
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mb-6 sm:mb-8">
+          <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200">
+            <label htmlFor="dilemma" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">What's troubling you?</label>
+            <textarea id="dilemma" value={dilemma} onChange={(e) => setDilemma(e.target.value)} placeholder="Describe the situation you're facing..." className="w-full p-3 sm:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none text-sm sm:text-base" rows="4" disabled={loading || freeUsesRemaining <= 0} />
+            <button type="submit" disabled={loading || !dilemma.trim() || freeUsesRemaining <= 0} className="mt-3 sm:mt-4 w-full bg-amber-700 hover:bg-amber-800 disabled:bg-gray-400 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base">{loading ? 'Consulting Marcus...' : freeUsesRemaining <= 0 ? 'Upgrade to Continue' : 'Seek Guidance'}</button>
+          </div>
+        </form>
+
+        {freeUsesRemaining <= 0 && !response && (
+          <UpgradeSection onUpgrade={handleUpgrade} />
+        )}
+
+        {error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-6 text-xs sm:text-base">{error}</div>}
+
+        {loading && (
+          <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 text-center">
+            <div className="animate-spin rounded-full h-10 sm:h-12 w-10 sm:w-12 border-b-2 border-amber-700 mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium text-xs sm:text-base">Consulting Marcus Aurelius...</p>
+            <p className="text-xs text-gray-500 mt-2">Analyzing emotion and generating guidance...</p>
+          </div>
+        )}
+
+        {response && (
+          <div className="space-y-4 sm:space-y-6">
+            <EmotionAnalysis analysis={emotionAnalysis} />
+            <ResponseCard response={response} />
+            {actionPlan && <ActionPlan plan={actionPlan} />}
+            {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
+            {freeUsesRemaining <= 0 && <UpgradeSection onUpgrade={handleUpgrade} />}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}            Logout
           </button>
         </div>
 
