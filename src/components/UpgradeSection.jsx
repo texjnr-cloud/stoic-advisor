@@ -7,78 +7,78 @@ export default function UpgradeSection({ onUpgrade }) {
         <div className="text-4xl">🔥</div>
         <div className="flex-1">
           <h3 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 mb-2">
-            You've Unlocked Something Powerful
+            You Got the Insight. Now Get the Implementation.
           </h3>
           <p className="text-gray-700 mb-4 text-sm sm:text-base">
-            You just got personalized advice from Marcus Aurelius. But here's what most people miss: the real transformation happens with the <span className="font-bold">4-week action plan</span> and <span className="font-bold">daily journal prompts</span>.
+            Marcus gave you personalized advice. But here's what changes everything: the <span className="font-bold">4-week action plan</span> and <span className="font-bold">daily journal prompts</span> above.
           </p>
           
           <div className="bg-white rounded-lg p-4 mb-6 border border-amber-200">
             <p className="text-sm sm:text-base text-gray-900 mb-3">
-              <span className="font-bold">The difference:</span>
+              <span className="font-bold">The difference between reading and doing:</span>
             </p>
             <div className="space-y-2">
               <div className="flex items-start gap-2">
-                <span className="text-red-500 font-bold text-lg">✗</span>
-                <span className="text-gray-700 text-sm">One-time advice (what you have now)</span>
+                <span className="text-red-500 font-bold text-lg mt-0.5">✗</span>
+                <span className="text-gray-700 text-sm">One insight (what you have right now)</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-green-600 font-bold text-lg">✓</span>
-                <span className="text-gray-900 font-semibold text-sm">4-week transformation plan + daily reflections = real change</span>
+                <span className="text-green-600 font-bold text-lg mt-0.5">✓</span>
+                <span className="text-gray-900 font-semibold text-sm">4-week plan + daily reflections = actual change</span>
               </div>
             </div>
           </div>
 
           <div className="mb-6">
-            <p className="text-xs sm:text-sm text-gray-600 mb-2">What you'll get:</p>
+            <p className="text-xs sm:text-sm text-gray-600 mb-3 font-semibold">What you unlock:</p>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-amber-700 font-bold text-lg">→</span>
-                <span className="text-gray-700 text-sm">Unlimited questions to Marcus</span>
+                <span className="text-gray-700 text-sm">Unlimited questions to Marcus (not just 1/day)</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-amber-700 font-bold text-lg">→</span>
-                <span className="text-gray-700 text-sm">4-week action plans (concrete daily steps)</span>
+                <span className="text-gray-700 text-sm">4-week action plans with concrete daily steps</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-amber-700 font-bold text-lg">→</span>
-                <span className="text-gray-700 text-sm">Journal prompts (proven to deepen practice)</span>
+                <span className="text-gray-700 text-sm">Journal prompts (proven to deepen Stoic practice)</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-amber-700 font-bold text-lg">→</span>
-                <span className="text-gray-700 text-sm">Lifetime access (one-time payment)</span>
+                <span className="text-gray-700 text-sm">Lifetime access (one-time payment, no subscriptions)</span>
               </div>
             </div>
           </div>
 
-         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-  <div className="flex items-center justify-center gap-6 mb-3">
-    <div>
-      <p className="text-xs text-gray-600">Regular Price</p>
-      <p className="text-2xl font-bold text-gray-400 line-through">$29</p>
-    </div>
-    <div className="text-center">
-      <p className="text-xs text-green-600 font-bold">LAUNCH PRICE</p>
-      <p className="text-4xl font-bold text-green-700">$9</p>
-    </div>
-  </div>
-  <p className="text-center text-xs text-red-600 font-semibold mb-2">
-    🔥 Only 87 spots left at this price
-  </p>
-  <p className="text-center text-xs text-gray-600">
-    After 100 users, price increases to $29 (lifetime access)
-  </p>
-</div>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-center gap-6 mb-3">
+              <div>
+                <p className="text-xs text-gray-600">Regular Price</p>
+                <p className="text-2xl font-bold text-gray-400 line-through">$29</p>
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-green-600 font-bold">LAUNCH PRICE</p>
+                <p className="text-4xl font-bold text-green-700">$9</p>
+              </div>
+            </div>
+            <p className="text-center text-xs text-red-600 font-semibold mb-2">
+              🔥 Limited spots at this price
+            </p>
+            <p className="text-center text-xs text-gray-600">
+              One payment. Lifetime access. No subscriptions.
+            </p>
+          </div>
 
           <button
             onClick={onUpgrade}
-            className="w-full bg-gradient-to-r from-amber-700 to-orange-700 hover:from-amber-800 hover:to-orange-800 text-white font-bold py-3 sm:py-4 px-6 rounded-lg transition-all text-base sm:text-lg shadow-lg hover:shadow-xl"
+            className="w-full bg-gradient-to-r from-amber-700 to-orange-700 hover:from-amber-800 hover:to-orange-800 text-white font-bold py-3 sm:py-4 px-6 rounded-lg transition-all text-base sm:text-lg shadow-lg hover:shadow-xl mb-3"
           >
-            Unlock Lifetime Access - $9
+            Unlock Full Access - $9
           </button>
 
-          <p className="text-xs text-gray-600 text-center mt-3">
-            Most people who upgrade say: <span className="italic">"This should be the default. The action plan changed everything."</span>
+          <p className="text-xs text-gray-600 text-center">
+            Users who upgrade say: <span className="italic">"The action plan changed everything."</span>
           </p>
         </div>
       </div>
