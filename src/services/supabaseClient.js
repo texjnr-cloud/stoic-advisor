@@ -33,6 +33,7 @@ export async function getUserFreeUsesRemaining(userId) {
   console.log('Free uses from DB:', data[0].free_uses_remaining);
   return data[0].free_uses_remaining ?? 1;
 }
+
 export async function decrementFreeUses(userId) {
   try {
     const remaining = await getUserFreeUsesRemaining(userId);
@@ -241,6 +242,7 @@ export async function updateJournalEntry(entryId, answer) {
   if (error) throw error;
   return data;
 }
+
 export async function saveScenarioWithResponse(dilemma, analysis, advice, actionPlan, journalPrompts) {
   try {
     const { data: scenario, error: scenarioError } = await supabase
@@ -284,4 +286,118 @@ export async function saveScenarioWithResponse(dilemma, analysis, advice, action
     return { success: false, error: err.message };
   }
 }
+
+// ============================================================================
+// PAYWALL FUNCTIONS
+// ============================================================================
+
+export async function canAskQuestion(userId) {
+  try {
+    // Check if user is paid
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('is_paid')
+      .eq('id', userId)
+      .single();
+
+    if (userError) {
+      console.error('Error checking user status:', userError);
+      return { can_ask: true, reason: null };
+    }
+
+    // Paid users can always ask
+    if (userData?.is_paid) {
+      return { can_ask: true, reason: null };
+    }
+
+    // Free users: check if they've already asked today
+    const today = new Date().toISOString().split('T')[0];
+    const { data: todayQuestion, error: questionError } = await supabase
+      .from('questions')
+      .select('id')
+      .eq('user_id', userId)
+      .gte('asked_at', `${today}T00:00:00`)
+      .lt('asked_at', `${today}T23:59:59`)
+      .single();
+
+    if (questionError && questionError.code !== 'PGRST116') {
+      console.error('Error checking questions:', questionError);
+      return { can_ask: true, reason: null };
+    }
+
+    // If a question exists today, user has hit their limit
+    if (todayQuestion) {
+      return { can_ask: false, reason: 'free_limit_reached' };
+    }
+
+    return { can_ask: true, reason: null };
+  } catch (err) {
+    console.error('Error in canAskQuestion:', err);
+    return { can_ask: true, reason: null };
+  }
+}
+
+export async function logQuestion(userId, dilemma) {
+  try {
+    const { error } = await supabase
+      .from('questions')
+      .insert({
+        user_id: userId,
+        dilemma,
+      });
+
+    if (error && error.code !== '23505') { // Unique violation is ok
+      console.error('Error logging question:', error);
+    }
+    return true;
+  } catch (err) {
+    console.error('Error in logQuestion:', err);
+    return false;
+  }
+}
+
+export async function markUserAsPaid(userId, stripeCustomerId, stripePaymentId) {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({
+        is_paid: true,
+        stripe_customer_id: stripeCustomerId,
+        stripe_payment_id: stripePaymentId,
+        paid_at: new Date().toISOString(),
+      })
+      .eq('id', userId);
+
+    if (error) {
+      console.error('Error marking user as paid:', error);
+      throw error;
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Error in markUserAsPaid:', err);
+    return false;
+  }
+}
+
+export async function getUserPaymentStatus(userId) {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('is_paid, paid_at')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error getting payment status:', error);
+      return { is_paid: false, paid_at: null };
+    }
+
+    return { is_paid: data?.is_paid || false, paid_at: data?.paid_at || null };
+  } catch (err) {
+    console.error('Error in getUserPaymentStatus:', err);
+    return { is_paid: false, paid_at: null };
+  }
+}
+
 export default supabase;
