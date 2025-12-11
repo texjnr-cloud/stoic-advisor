@@ -25,13 +25,21 @@ export default function ChatInterface() {
   const checkUserStatus = async () => {
     const user = await getCurrentUser();
     if (user) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('users')
         .select('is_paid')
         .eq('id', user.id)
         .single();
-      const isPaid = data?.is_paid || false;
-      console.log('Initial user check - is_paid:', isPaid);
+      
+      if (error) {
+        console.error('Error checking user status:', error);
+        setUserIsPaid(false);
+        return;
+      }
+
+      // Treat null and false as free user, only true = paid
+      const isPaid = data?.is_paid === true;
+      console.log('Initial user check - is_paid:', isPaid, '(raw:', data?.is_paid, ')');
       setUserIsPaid(isPaid);
     }
   };
@@ -52,13 +60,20 @@ export default function ChatInterface() {
       }
 
       // Check user's paid status FIRST
-      const { data: userData } = await supabase
+      const { data: userData, error: userError } = await supabase
         .from('users')
         .select('is_paid')
         .eq('id', user.id)
         .single();
-      const userPaid = userData?.is_paid || false;
-      console.log('User is_paid:', userPaid);
+      
+      if (userError) {
+        console.error('Error checking user:', userError);
+        setUserIsPaid(false);
+      }
+
+      // Treat null and false as free user, only true = paid
+      const userPaid = userData?.is_paid === true;
+      console.log('User is_paid check - userPaid:', userPaid, '(raw:', userData?.is_paid, ')');
       setUserIsPaid(userPaid);
 
       // All users can ask unlimited questions
@@ -161,15 +176,21 @@ export default function ChatInterface() {
             <EmotionAnalysis analysis={emotionAnalysis} />
             <ResponseCard response={response} />
             
+            {console.log('RENDER CHECK - userIsPaid:', userIsPaid, 'actionPlan exists:', !!actionPlan, 'journalPrompts exists:', !!journalPrompts)}
+            
             {userIsPaid ? (
               // PAID USER: Show action plan + journal
               <>
+                {console.log('RENDERING PAID USER CONTENT')}
                 {actionPlan && <ActionPlan plan={actionPlan} />}
                 {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
               </>
             ) : (
               // FREE USER: Show upgrade section instead
-              <UpgradeSection onUpgrade={handleUpgradeClick} />
+              <>
+                {console.log('RENDERING FREE USER - UPGRADE SECTION ONLY')}
+                <UpgradeSection onUpgrade={handleUpgradeClick} />
+              </>
             )}
           </div>
         )}
