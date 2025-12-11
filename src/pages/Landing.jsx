@@ -35,8 +35,8 @@ export default function Landing({ setShowLanding }) {
         <div className="max-w-4xl mx-auto px-6">
           <h2 className="text-4xl font-serif font-bold text-center mb-12">See It In Action</h2>
           <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden">
-            <div style="position: relative; padding-bottom: 56.25%; height: 0;">
-              <iframe src="https://www.loom.com/embed/525711224a3d43fdbe983b7c33146b65" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+            <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
+            <iframe src="https://www.loom.com/embed/525711224a3d43fdbe983b7c33146b65" frameBorder="0" webkitAllowFullScreen mozAllowFullScreen allowFullScreen style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}></iframe>
             </div>
           </div>
         </div>
