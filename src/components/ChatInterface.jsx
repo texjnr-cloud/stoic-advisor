@@ -30,7 +30,9 @@ export default function ChatInterface() {
         .select('is_paid')
         .eq('id', user.id)
         .single();
-      setUserIsPaid(data?.is_paid || false);
+      const isPaid = data?.is_paid || false;
+      console.log('Initial user check - is_paid:', isPaid);
+      setUserIsPaid(isPaid);
     }
   };
 
@@ -72,6 +74,16 @@ export default function ChatInterface() {
       console.log('Plan received:', plan);
       setActionPlan(plan);
       setJournalPrompts(prompts);
+
+      // Re-check user's paid status after generating response
+      const { data } = await supabase
+        .from('users')
+        .select('is_paid')
+        .eq('id', user.id)
+        .single();
+      const isPaid = data?.is_paid || false;
+      console.log('User is_paid status:', isPaid);
+      setUserIsPaid(isPaid);
 
       setDilemma('');
     } catch (err) {
