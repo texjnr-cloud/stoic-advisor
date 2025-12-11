@@ -292,49 +292,9 @@ export async function saveScenarioWithResponse(dilemma, analysis, advice, action
 // ============================================================================
 
 export async function canAskQuestion(userId) {
-  try {
-    // Check if user is paid
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('is_paid')
-      .eq('id', userId)
-      .single();
-
-    if (userError) {
-      console.error('Error checking user status:', userError);
-      return { can_ask: true, reason: null };
-    }
-
-    // Paid users can always ask
-    if (userData?.is_paid) {
-      return { can_ask: true, reason: null };
-    }
-
-    // Free users: check if they've already asked today
-    const today = new Date().toISOString().split('T')[0];
-    const { data: todayQuestion, error: questionError } = await supabase
-      .from('questions')
-      .select('id')
-      .eq('user_id', userId)
-      .gte('asked_at', `${today}T00:00:00`)
-      .lt('asked_at', `${today}T23:59:59`)
-      .single();
-
-    if (questionError && questionError.code !== 'PGRST116') {
-      console.error('Error checking questions:', questionError);
-      return { can_ask: true, reason: null };
-    }
-
-    // If a question exists today, user has hit their limit
-    if (todayQuestion) {
-      return { can_ask: false, reason: 'free_limit_reached' };
-    }
-
-    return { can_ask: true, reason: null };
-  } catch (err) {
-    console.error('Error in canAskQuestion:', err);
-    return { can_ask: true, reason: null };
-  }
+  // All users (free and paid) can ask unlimited questions
+  // The paywall is on action plan + journal prompts, not on questions
+  return { can_ask: true, reason: null };
 }
 
 export async function logQuestion(userId, dilemma) {
