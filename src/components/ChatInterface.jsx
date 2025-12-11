@@ -106,8 +106,18 @@ export default function ChatInterface() {
     await supabase.auth.signOut();
   };
 
-  const handleUpgradeClick = () => {
-    window.location.href = import.meta.env.VITE_STRIPE_CHECKOUT_URL || 'https://buy.stripe.com/pay/cs_live_YOUR_LINK';
+  const handleUpgradeClick = async () => {
+    try {
+      const user = await getCurrentUser();
+      if (user) {
+        // Pass user info to Stripe so webhook can identify them
+        const stripeUrl = `${import.meta.env.VITE_STRIPE_CHECKOUT_URL}?email=${encodeURIComponent(user.email)}&user_id=${user.id}`;
+        window.location.href = stripeUrl;
+      }
+    } catch (err) {
+      console.error('Error redirecting to Stripe:', err);
+      window.location.href = import.meta.env.VITE_STRIPE_CHECKOUT_URL;
+    }
   };
 
   return (
