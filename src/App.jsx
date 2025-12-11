@@ -1,3 +1,15 @@
+import Landing from './pages/Landing';
+
+function App() {
+  const [showLanding, setShowLanding] = useState(true);
+
+  // Show landing page first
+  if (showLanding) {
+    return <Landing setShowLanding={setShowLanding} />;
+  }
+
+  // ... rest of your auth logic
+}
 import { useEffect, useState } from 'react';
 import { supabase } from './services/supabaseClient';
 import ChatInterface from './components/ChatInterface';
