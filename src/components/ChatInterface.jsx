@@ -144,12 +144,12 @@ export default function ChatInterface() {
             <ResponseCard response={response} />
             
             {!userIsPaid ? (
+              // Free user: show UpgradeSection, action plan/journal hidden
               <>
-                {actionPlan && <ActionPlan plan={actionPlan} />}
-                {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
                 <UpgradeSection onUpgrade={handleUpgradeClick} />
               </>
             ) : (
+              // Paid user: show everything
               <>
                 {actionPlan && <ActionPlan plan={actionPlan} />}
                 {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
