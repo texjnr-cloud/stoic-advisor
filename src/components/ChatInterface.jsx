@@ -7,7 +7,6 @@ import ResponseCard from './ResponseCard';
 import ActionPlan from './ActionPlan';
 import JournalPrompts from './JournalPrompts';
 import UpgradeSection from './UpgradeSection';
-import PaywallOverlay from './PaywallOverlay';
 
 export default function ChatInterface() {
   const [dilemma, setDilemma] = useState('');
@@ -17,7 +16,6 @@ export default function ChatInterface() {
   const [journalPrompts, setJournalPrompts] = useState(null);
   const [emotionAnalysis, setEmotionAnalysis] = useState(null);
   const [error, setError] = useState(null);
-  const [showPaywall, setShowPaywall] = useState(false);
   const [userIsPaid, setUserIsPaid] = useState(false);
 
   useEffect(() => {
@@ -42,7 +40,6 @@ export default function ChatInterface() {
 
     setError(null);
     setLoading(true);
-    setShowPaywall(false);
 
     try {
       const user = await getCurrentUser();
@@ -52,17 +49,8 @@ export default function ChatInterface() {
         return;
       }
 
-      // Check if user can ask a question
-      const { can_ask, reason } = await canAskQuestion(user.id);
-
-      if (!can_ask) {
-        // Free user has hit daily limit - show paywall
-        setShowPaywall(true);
-        setLoading(false);
-        return;
-      }
-
-      // User can ask - log the question
+      // All users can ask unlimited questions
+      // Log the question (for analytics/history, but not for limiting)
       await logQuestion(user.id, dilemma);
 
       // Generate all responses
@@ -99,9 +87,8 @@ export default function ChatInterface() {
   };
 
   const handleUpgradeClick = () => {
-    // For now, redirect to Stripe checkout
-    // Later we'll set up the actual payment link
-    window.location.href = 'https://buy.stripe.com/YOUR_CHECKOUT_LINK'; // Replace with your Stripe link
+    // Redirect to Stripe checkout
+    window.location.href = import.meta.env.VITE_STRIPE_CHECKOUT_URL || 'https://buy.stripe.com/pay/cs_live_YOUR_LINK';
   };
 
   return (
@@ -142,10 +129,6 @@ export default function ChatInterface() {
         </form>
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-6 text-xs sm:text-base">{error}</div>}
-
-        {showPaywall && (
-          <PaywallOverlay onUpgrade={handleUpgradeClick} />
-        )}
 
         {loading && (
           <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 text-center">
