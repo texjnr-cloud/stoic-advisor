@@ -1,12 +1,3 @@
-import Landing from './pages/Landing';
-
-function App() {
-  const [showLanding, setShowLanding] = useState(true);
-
-  // Show landing page first
-  if (showLanding) {
-    return <Landing setShowLanding={setShowLanding} />;
-  }
 import { useEffect, useState } from 'react';
 import { supabase } from './services/supabaseClient';
 import ChatInterface from './components/ChatInterface';
@@ -15,6 +6,7 @@ import Landing from './pages/Landing';
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showLanding, setShowLanding] = useState(true);
 
   useEffect(() => {
     const getSession = async () => {
@@ -32,9 +24,9 @@ function App() {
     return () => subscription?.unsubscribe();
   }, []);
 
-  // Show landing page at root path
-  if (window.location.pathname === '/') {
-    return <Landing />;
+  // Show landing page first
+  if (showLanding) {
+    return <Landing setShowLanding={setShowLanding} />;
   }
 
   if (loading) {
