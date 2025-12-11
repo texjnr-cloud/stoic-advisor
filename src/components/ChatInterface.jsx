@@ -16,45 +16,48 @@ export default function ChatInterface() {
   const [emotionAnalysis, setEmotionAnalysis] = useState(null);
   const [error, setError] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!dilemma.trim()) return;
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!dilemma.trim()) return;
 
-    setError(null);
-    setLoading(true);
+  setError(null);
+  setLoading(true);
 
-    try {
-      const user = await getCurrentUser();
-      if (!user) {
-        setError('Please log in to continue');
-        setLoading(false);
-        return;
-      }
-
-      const [analysis, advice] = await Promise.all([
-        analyzeEmotion(dilemma),
-        generateStoicAdvice(dilemma),
-      ]);
-
-      setEmotionAnalysis(analysis);
-      setResponse(advice);
-
-      const [plan, prompts] = await Promise.all([
-        generateActionPlan(dilemma, advice.advice),
-        generateJournalPrompts(dilemma),
-      ]);
-      
-      setActionPlan(plan);
-      setJournalPrompts(prompts);
-
-      setDilemma('');
-    } catch (err) {
-      console.error('Error:', err);
-      setError(err.message || 'Failed to get advice. Please try again.');
-    } finally {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      setError('Please log in to continue');
       setLoading(false);
+      return;
     }
-  };
+
+    console.log('Generating analysis and advice...');
+    const [analysis, advice] = await Promise.all([
+      analyzeEmotion(dilemma),
+      generateStoicAdvice(dilemma),
+    ]);
+
+    setEmotionAnalysis(analysis);
+    setResponse(advice);
+
+    console.log('Generating action plan and prompts...');
+    const [plan, prompts] = await Promise.all([
+      generateActionPlan(dilemma, advice.advice),
+      generateJournalPrompts(dilemma),
+    ]);
+    
+    console.log('Plan received:', plan);
+    setActionPlan(plan);
+    setJournalPrompts(prompts);
+
+    setDilemma('');
+  } catch (err) {
+    console.error('Error:', err);
+    setError(err.message || 'Failed to get advice. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
