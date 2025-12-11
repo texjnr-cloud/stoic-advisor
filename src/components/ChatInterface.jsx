@@ -51,11 +51,20 @@ export default function ChatInterface() {
         return;
       }
 
+      // Check user's paid status FIRST
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_paid')
+        .eq('id', user.id)
+        .single();
+      const userPaid = userData?.is_paid || false;
+      console.log('User is_paid:', userPaid);
+      setUserIsPaid(userPaid);
+
       // All users can ask unlimited questions
-      // Log the question (for analytics/history, but not for limiting)
       await logQuestion(user.id, dilemma);
 
-      // Generate all responses
+      // Generate analysis and advice (for everyone)
       console.log('Generating analysis and advice...');
       const [analysis, advice] = await Promise.all([
         analyzeEmotion(dilemma),
@@ -65,25 +74,22 @@ export default function ChatInterface() {
       setEmotionAnalysis(analysis);
       setResponse(advice);
 
-      console.log('Generating action plan and prompts...');
-      const [plan, prompts] = await Promise.all([
-        generateActionPlan(dilemma, advice.advice),
-        generateJournalPrompts(dilemma),
-      ]);
-      
-      console.log('Plan received:', plan);
-      setActionPlan(plan);
-      setJournalPrompts(prompts);
-
-      // Re-check user's paid status after generating response
-      const { data } = await supabase
-        .from('users')
-        .select('is_paid')
-        .eq('id', user.id)
-        .single();
-      const isPaid = data?.is_paid || false;
-      console.log('User is_paid status:', isPaid);
-      setUserIsPaid(isPaid);
+      // ONLY generate action plan and journal if user is PAID
+      if (userPaid) {
+        console.log('User is paid - generating action plan and prompts...');
+        const [plan, prompts] = await Promise.all([
+          generateActionPlan(dilemma, advice.advice),
+          generateJournalPrompts(dilemma),
+        ]);
+        
+        console.log('Plan received:', plan);
+        setActionPlan(plan);
+        setJournalPrompts(prompts);
+      } else {
+        console.log('User is free - action plan and prompts NOT generated');
+        setActionPlan(null);
+        setJournalPrompts(null);
+      }
 
       setDilemma('');
     } catch (err) {
@@ -155,17 +161,15 @@ export default function ChatInterface() {
             <EmotionAnalysis analysis={emotionAnalysis} />
             <ResponseCard response={response} />
             
-            {!userIsPaid ? (
-              // Free user: show UpgradeSection, action plan/journal hidden
-              <>
-                <UpgradeSection onUpgrade={handleUpgradeClick} />
-              </>
-            ) : (
-              // Paid user: show everything
+            {userIsPaid ? (
+              // PAID USER: Show action plan + journal
               <>
                 {actionPlan && <ActionPlan plan={actionPlan} />}
                 {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
               </>
+            ) : (
+              // FREE USER: Show upgrade section instead
+              <UpgradeSection onUpgrade={handleUpgradeClick} />
             )}
           </div>
         )}
