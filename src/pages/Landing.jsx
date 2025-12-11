@@ -15,7 +15,7 @@ export default function Landing({ setShowLanding }) {
       {/* HERO */}
       <section className="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 py-20">
         <div className="max-w-3xl mx-auto px-6 text-center">
-          <h1 className="text-5xl sm:text-6xl font-serif font-bold text-gray-900 mb-6">
+         <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold text-gray-900 mb-6">
             Stop Reading Stoicism.<br /><span className="text-amber-700">Start <em>Implementing</em> It.</span>
           </h1>
           <p className="text-xl text-gray-700 mb-8 leading-relaxed">
@@ -46,7 +46,7 @@ export default function Landing({ setShowLanding }) {
       <section className="py-20 bg-gray-50">
         <div className="max-w-3xl mx-auto px-6">
           <h2 className="text-4xl font-serif font-bold text-center mb-16">
-            The Gap Between Theory and Action is Now Closed.
+            Close The Gap Between Theory and Action.
           </h2>
           
           <div className="space-y-12">
@@ -67,7 +67,7 @@ export default function Landing({ setShowLanding }) {
             <div className="bg-white p-8 rounded-lg border-l-4 border-amber-700">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">2. Personalized Wisdom That Cuts Through the Noise</h3>
               <p className="text-gray-700 mb-4">
-                Not a generic quote. Not a random passage.
+                 No generic quotes or random passages.
               </p>
               <p className="text-gray-900 font-bold mb-4">
                 Marcus Aurelius responds to YOUR specific situation.
@@ -171,30 +171,31 @@ export default function Landing({ setShowLanding }) {
         <div className="max-w-3xl mx-auto px-6">
           <h2 className="text-4xl font-serif font-bold text-center mb-16">Why People Use It</h2>
           
-          <div className="space-y-8">
-            <div className="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
-              <p className="text-lg text-gray-800 italic mb-4">
-                "Killed my procrastination. The 4-week plan gave me real steps instead of just theory."
-              </p>
-              <p className="text-gray-600 font-semibold">— User</p>
-            </div>
+          <div class="space-y-8">
+      <div class="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
+        <p class="text-lg text-gray-800 italic mb-4">
+          "This is really bloody good. The response was so insightful!"
+        </p>
+        <p class="text-gray-600 font-semibold">— Jermaine Anderson </p>
+      </div>
 
-            <div className="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
-              <p className="text-lg text-gray-800 italic mb-4">
-                "I went from overthinking to acting in one week. This is what Stoicism should feel like—practical, not preachy."
-              </p>
-              <p className="text-gray-600 font-semibold">— User</p>
-            </div>
+      <div class="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
+        <p class="text-lg text-gray-800 italic mb-4">
+          "I went from overthinking to acting in one week. This is what Stoicism should feel like...practical, not preachy."
+        </p>
+        <p class="text-gray-600 font-semibold">— Lorraine Mills</p>
+      </div>
 
-            <div className="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
-              <p className="text-lg text-gray-800 italic mb-4">
-                "I finally understood what was driving my fear of failure. The personalized advice was the kick I needed."
-              </p>
-              <p className="text-gray-600 font-semibold">— User</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div class="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
+        <p class="text-lg text-gray-800 italic mb-4">
+          "I finally understood what was driving my fear of failure. The personalized advice was the kick I needed."
+        </p>
+        <p class="text-gray-600 font-semibold">— Gavin White</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 
       {/* PRICING */}
       <section className="py-20 bg-gray-50">
