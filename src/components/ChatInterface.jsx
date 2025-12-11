@@ -1,5 +1,5 @@
 import { supabase } from '../services/supabaseClient';
-import { canAskQuestion, logQuestion, getCurrentUser } from '../services/supabaseClient';
+import { logQuestion, getCurrentUser } from '../services/supabaseClient';
 import React, { useState, useEffect } from 'react';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
 import EmotionAnalysis from './EmotionAnalysis';
@@ -19,28 +19,37 @@ export default function ChatInterface() {
   const [userIsPaid, setUserIsPaid] = useState(false);
 
   useEffect(() => {
+    console.log('%c=== ChatInterface Mounted ===', 'color: green; font-size: 14px;');
     checkUserStatus();
   }, []);
 
   const checkUserStatus = async () => {
-    const user = await getCurrentUser();
-    if (user) {
-      const { data, error } = await supabase
-        .from('users')
-        .select('is_paid')
-        .eq('id', user.id)
-        .single();
+    try {
+      const user = await getCurrentUser();
+      console.log('%c[checkUserStatus] User:', 'color: blue;', user?.email);
       
-      if (error) {
-        console.error('Error checking user status:', error);
-        setUserIsPaid(false);
-        return;
-      }
+      if (user) {
+        const { data, error } = await supabase
+          .from('users')
+          .select('is_paid')
+          .eq('id', user.id)
+          .single();
+        
+        if (error) {
+          console.error('%c[checkUserStatus] Error:', 'color: red;', error);
+          setUserIsPaid(false);
+          return;
+        }
 
-      // Treat null and false as free user, only true = paid
-      const isPaid = data?.is_paid === true;
-      console.log('Initial user check - is_paid:', isPaid, '(raw:', data?.is_paid, ')');
-      setUserIsPaid(isPaid);
+        // EXPLICIT CHECK: Only true = paid
+        const isPaid = data?.is_paid === true;
+        console.log('%c[checkUserStatus] is_paid value from DB:', 'color: blue;', data?.is_paid);
+        console.log('%c[checkUserStatus] isPaid after check:', 'color: orange;', isPaid);
+        setUserIsPaid(isPaid);
+      }
+    } catch (err) {
+      console.error('%c[checkUserStatus] Exception:', 'color: red;', err);
+      setUserIsPaid(false);
     }
   };
 
@@ -50,6 +59,7 @@ export default function ChatInterface() {
 
     setError(null);
     setLoading(true);
+    console.log('%c[handleSubmit] Starting...', 'color: blue;');
 
     try {
       const user = await getCurrentUser();
@@ -59,7 +69,9 @@ export default function ChatInterface() {
         return;
       }
 
-      // Check user's paid status FIRST
+      console.log('%c[handleSubmit] User authenticated:', 'color: green;', user.email);
+
+      // Check paid status
       const { data: userData, error: userError } = await supabase
         .from('users')
         .select('is_paid')
@@ -67,20 +79,20 @@ export default function ChatInterface() {
         .single();
       
       if (userError) {
-        console.error('Error checking user:', userError);
-        setUserIsPaid(false);
+        console.error('%c[handleSubmit] User check error:', 'color: red;', userError);
       }
 
-      // Treat null and false as free user, only true = paid
       const userPaid = userData?.is_paid === true;
-      console.log('User is_paid check - userPaid:', userPaid, '(raw:', userData?.is_paid, ')');
+      console.log('%c[handleSubmit] Raw is_paid from DB:', 'color: blue;', userData?.is_paid);
+      console.log('%c[handleSubmit] Processed userPaid:', 'color: orange;', userPaid);
       setUserIsPaid(userPaid);
 
-      // All users can ask unlimited questions
+      // Log question
       await logQuestion(user.id, dilemma);
+      console.log('%c[handleSubmit] Question logged', 'color: green;');
 
-      // Generate analysis and advice (for everyone)
-      console.log('Generating analysis and advice...');
+      // Generate analysis and advice
+      console.log('%c[handleSubmit] Generating emotion analysis and advice...', 'color: blue;');
       const [analysis, advice] = await Promise.all([
         analyzeEmotion(dilemma),
         generateStoicAdvice(dilemma),
@@ -88,27 +100,28 @@ export default function ChatInterface() {
 
       setEmotionAnalysis(analysis);
       setResponse(advice);
+      console.log('%c[handleSubmit] Analysis and advice generated', 'color: green;');
 
-      // ONLY generate action plan and journal if user is PAID
+      // Only generate action plan and journal if PAID
       if (userPaid) {
-        console.log('User is paid - generating action plan and prompts...');
+        console.log('%c[handleSubmit] USER IS PAID - Generating action plan and prompts...', 'color: green; font-weight: bold;');
         const [plan, prompts] = await Promise.all([
           generateActionPlan(dilemma, advice.advice),
           generateJournalPrompts(dilemma),
         ]);
         
-        console.log('Plan received:', plan);
         setActionPlan(plan);
         setJournalPrompts(prompts);
+        console.log('%c[handleSubmit] Action plan and prompts generated for PAID user', 'color: green;');
       } else {
-        console.log('User is free - action plan and prompts NOT generated');
+        console.log('%c[handleSubmit] USER IS FREE - NOT generating action plan and prompts', 'color: red; font-weight: bold;');
         setActionPlan(null);
         setJournalPrompts(null);
       }
 
       setDilemma('');
     } catch (err) {
-      console.error('Error:', err);
+      console.error('%c[handleSubmit] Exception:', 'color: red;', err);
       setError(err.message || 'Failed to get advice. Please try again.');
     } finally {
       setLoading(false);
@@ -120,7 +133,6 @@ export default function ChatInterface() {
   };
 
   const handleUpgradeClick = () => {
-    // Redirect to Stripe checkout
     window.location.href = import.meta.env.VITE_STRIPE_CHECKOUT_URL || 'https://buy.stripe.com/pay/cs_live_YOUR_LINK';
   };
 
@@ -176,19 +188,17 @@ export default function ChatInterface() {
             <EmotionAnalysis analysis={emotionAnalysis} />
             <ResponseCard response={response} />
             
-            {console.log('RENDER CHECK - userIsPaid:', userIsPaid, 'actionPlan exists:', !!actionPlan, 'journalPrompts exists:', !!journalPrompts)}
+            {console.log('%c[RENDER] userIsPaid:', 'color: purple; font-weight: bold;', userIsPaid, '| actionPlan:', !!actionPlan, '| journalPrompts:', !!journalPrompts)}
             
             {userIsPaid ? (
-              // PAID USER: Show action plan + journal
               <>
-                {console.log('RENDERING PAID USER CONTENT')}
+                {console.log('%c[RENDER] === SHOWING PAID USER CONTENT ===', 'color: green; font-weight: bold;')}
                 {actionPlan && <ActionPlan plan={actionPlan} />}
                 {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
               </>
             ) : (
-              // FREE USER: Show upgrade section instead
               <>
-                {console.log('RENDERING FREE USER - UPGRADE SECTION ONLY')}
+                {console.log('%c[RENDER] === SHOWING UPGRADE SECTION (FREE USER) ===', 'color: red; font-weight: bold;')}
                 <UpgradeSection onUpgrade={handleUpgradeClick} />
               </>
             )}
