@@ -17,9 +17,26 @@ export default function ChatInterface() {
   const [emotionAnalysis, setEmotionAnalysis] = useState(null);
   const [error, setError] = useState(null);
   const [userIsPaid, setUserIsPaid] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   useEffect(() => {
     checkUserStatus();
+    
+    // Check if returning from Stripe payment success
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment_success') === 'true') {
+      console.log('Payment successful! Checking for payment...');
+      setShowSuccessMessage(true);
+      
+      // Wait a moment for webhook to process, then refresh user status
+      setTimeout(() => {
+        checkUserStatus();
+        // Clear the URL param to clean up the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        // Hide success message after 5 seconds
+        setTimeout(() => setShowSuccessMessage(false), 5000);
+      }, 2000);
+    }
   }, []);
 
   const checkUserStatus = async () => {
@@ -132,6 +149,12 @@ export default function ChatInterface() {
             Logout
           </button>
         </div>
+
+        {showSuccessMessage && (
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 sm:px-6 py-3 sm:py-4 rounded-lg mb-6 text-sm sm:text-base font-semibold">
+            ✓ Payment successful! Your account has been upgraded. You now have unlimited access!
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="mb-6 sm:mb-8">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200">
