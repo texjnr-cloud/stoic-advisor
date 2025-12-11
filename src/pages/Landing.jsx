@@ -34,7 +34,7 @@ export default function Landing({ setShowLanding }) {
       <section className="py-16 bg-white">
         <div className="max-w-4xl mx-auto px-6">
           <h2 className="text-4xl font-serif font-bold text-center mb-12">See It In Action</h2>
-          <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden">
+          <div className="w-full aspect-video bg-gray-200 rounded-lg overflow-hidden">
             <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
             <iframe src="https://www.loom.com/embed/525711224a3d43fdbe983b7c33146b65" frameBorder="0" webkitAllowFullScreen mozAllowFullScreen allowFullScreen style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}></iframe>
             </div>
@@ -204,7 +204,7 @@ export default function Landing({ setShowLanding }) {
             <strong>No subscriptions. No monthly fees. You pay once and you own it.</strong>
           </p>
 
-          <div className="bg-white rounded-lg shadow-lg p-12 mb-8 text-center">
+          <div className="bg-white rounded-lg shadow-lg p-6 sm:p-12 mb-8 text-center">
             <div className="mb-6">
               <p className="text-gray-600 text-sm mb-2">LAUNCH PRICE (First 100 Users)</p>
               <p className="text-5xl font-bold text-amber-700">$9</p>
