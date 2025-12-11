@@ -19,36 +19,25 @@ export default function ChatInterface() {
   const [userIsPaid, setUserIsPaid] = useState(false);
 
   useEffect(() => {
-    console.log('%c=== ChatInterface Mounted ===', 'color: green; font-size: 14px;');
     checkUserStatus();
   }, []);
 
   const checkUserStatus = async () => {
     try {
       const user = await getCurrentUser();
-      console.log('%c[checkUserStatus] User:', 'color: blue;', user?.email);
-      
       if (user) {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('users')
           .select('is_paid')
           .eq('id', user.id)
           .single();
-        
-        if (error) {
-          console.error('%c[checkUserStatus] Error:', 'color: red;', error);
-          setUserIsPaid(false);
-          return;
-        }
 
-        // EXPLICIT CHECK: Only true = paid
+        // Explicit: only true = paid, null/false = free
         const isPaid = data?.is_paid === true;
-        console.log('%c[checkUserStatus] is_paid value from DB:', 'color: blue;', data?.is_paid);
-        console.log('%c[checkUserStatus] isPaid after check:', 'color: orange;', isPaid);
         setUserIsPaid(isPaid);
       }
     } catch (err) {
-      console.error('%c[checkUserStatus] Exception:', 'color: red;', err);
+      console.error('Error checking user status:', err);
       setUserIsPaid(false);
     }
   };
@@ -59,7 +48,6 @@ export default function ChatInterface() {
 
     setError(null);
     setLoading(true);
-    console.log('%c[handleSubmit] Starting...', 'color: blue;');
 
     try {
       const user = await getCurrentUser();
@@ -69,30 +57,20 @@ export default function ChatInterface() {
         return;
       }
 
-      console.log('%c[handleSubmit] User authenticated:', 'color: green;', user.email);
-
-      // Check paid status
-      const { data: userData, error: userError } = await supabase
+      // Get fresh user status
+      const { data: userData } = await supabase
         .from('users')
         .select('is_paid')
         .eq('id', user.id)
         .single();
-      
-      if (userError) {
-        console.error('%c[handleSubmit] User check error:', 'color: red;', userError);
-      }
 
       const userPaid = userData?.is_paid === true;
-      console.log('%c[handleSubmit] Raw is_paid from DB:', 'color: blue;', userData?.is_paid);
-      console.log('%c[handleSubmit] Processed userPaid:', 'color: orange;', userPaid);
       setUserIsPaid(userPaid);
 
       // Log question
       await logQuestion(user.id, dilemma);
-      console.log('%c[handleSubmit] Question logged', 'color: green;');
 
-      // Generate analysis and advice
-      console.log('%c[handleSubmit] Generating emotion analysis and advice...', 'color: blue;');
+      // Generate emotion analysis and Marcus advice (for everyone)
       const [analysis, advice] = await Promise.all([
         analyzeEmotion(dilemma),
         generateStoicAdvice(dilemma),
@@ -100,28 +78,24 @@ export default function ChatInterface() {
 
       setEmotionAnalysis(analysis);
       setResponse(advice);
-      console.log('%c[handleSubmit] Analysis and advice generated', 'color: green;');
 
-      // Only generate action plan and journal if PAID
+      // ONLY generate action plan and journal if user is paid
       if (userPaid) {
-        console.log('%c[handleSubmit] USER IS PAID - Generating action plan and prompts...', 'color: green; font-weight: bold;');
         const [plan, prompts] = await Promise.all([
           generateActionPlan(dilemma, advice.advice),
           generateJournalPrompts(dilemma),
         ]);
-        
         setActionPlan(plan);
         setJournalPrompts(prompts);
-        console.log('%c[handleSubmit] Action plan and prompts generated for PAID user', 'color: green;');
       } else {
-        console.log('%c[handleSubmit] USER IS FREE - NOT generating action plan and prompts', 'color: red; font-weight: bold;');
+        // Free user: don't generate these
         setActionPlan(null);
         setJournalPrompts(null);
       }
 
       setDilemma('');
     } catch (err) {
-      console.error('%c[handleSubmit] Exception:', 'color: red;', err);
+      console.error('Error:', err);
       setError(err.message || 'Failed to get advice. Please try again.');
     } finally {
       setLoading(false);
@@ -188,19 +162,15 @@ export default function ChatInterface() {
             <EmotionAnalysis analysis={emotionAnalysis} />
             <ResponseCard response={response} />
             
-            {console.log('%c[RENDER] userIsPaid:', 'color: purple; font-weight: bold;', userIsPaid, '| actionPlan:', !!actionPlan, '| journalPrompts:', !!journalPrompts)}
-            
             {userIsPaid ? (
+              // PAID: Show everything
               <>
-                {console.log('%c[RENDER] === SHOWING PAID USER CONTENT ===', 'color: green; font-weight: bold;')}
                 {actionPlan && <ActionPlan plan={actionPlan} />}
                 {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
               </>
             ) : (
-              <>
-                {console.log('%c[RENDER] === SHOWING UPGRADE SECTION (FREE USER) ===', 'color: red; font-weight: bold;')}
-                <UpgradeSection onUpgrade={handleUpgradeClick} />
-              </>
+              // FREE: Show upgrade section only
+              <UpgradeSection onUpgrade={handleUpgradeClick} />
             )}
           </div>
         )}
