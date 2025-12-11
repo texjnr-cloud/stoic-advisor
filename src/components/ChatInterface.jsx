@@ -1,11 +1,13 @@
 import { supabase } from '../services/supabaseClient';
+import { canAskQuestion, logQuestion, getCurrentUser } from '../services/supabaseClient';
 import React, { useState, useEffect } from 'react';
-import { getCurrentUser } from '../services/supabaseClient';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
 import EmotionAnalysis from './EmotionAnalysis';
 import ResponseCard from './ResponseCard';
 import ActionPlan from './ActionPlan';
 import JournalPrompts from './JournalPrompts';
+import UpgradeSection from './UpgradeSection';
+import PaywallOverlay from './PaywallOverlay';
 
 export default function ChatInterface() {
   const [dilemma, setDilemma] = useState('');
@@ -15,52 +17,91 @@ export default function ChatInterface() {
   const [journalPrompts, setJournalPrompts] = useState(null);
   const [emotionAnalysis, setEmotionAnalysis] = useState(null);
   const [error, setError] = useState(null);
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [userIsPaid, setUserIsPaid] = useState(false);
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!dilemma.trim()) return;
+  useEffect(() => {
+    checkUserStatus();
+  }, []);
 
-  setError(null);
-  setLoading(true);
-
-  try {
+  const checkUserStatus = async () => {
     const user = await getCurrentUser();
-    if (!user) {
-      setError('Please log in to continue');
-      setLoading(false);
-      return;
+    if (user) {
+      const { data } = await supabase
+        .from('users')
+        .select('is_paid')
+        .eq('id', user.id)
+        .single();
+      setUserIsPaid(data?.is_paid || false);
     }
+  };
 
-    console.log('Generating analysis and advice...');
-    const [analysis, advice] = await Promise.all([
-      analyzeEmotion(dilemma),
-      generateStoicAdvice(dilemma),
-    ]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!dilemma.trim()) return;
 
-    setEmotionAnalysis(analysis);
-    setResponse(advice);
+    setError(null);
+    setLoading(true);
+    setShowPaywall(false);
 
-    console.log('Generating action plan and prompts...');
-    const [plan, prompts] = await Promise.all([
-      generateActionPlan(dilemma, advice.advice),
-      generateJournalPrompts(dilemma),
-    ]);
-    
-    console.log('Plan received:', plan);
-    setActionPlan(plan);
-    setJournalPrompts(prompts);
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        setError('Please log in to continue');
+        setLoading(false);
+        return;
+      }
 
-    setDilemma('');
-  } catch (err) {
-    console.error('Error:', err);
-    setError(err.message || 'Failed to get advice. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
+      // Check if user can ask a question
+      const { can_ask, reason } = await canAskQuestion(user.id);
+
+      if (!can_ask) {
+        // Free user has hit daily limit - show paywall
+        setShowPaywall(true);
+        setLoading(false);
+        return;
+      }
+
+      // User can ask - log the question
+      await logQuestion(user.id, dilemma);
+
+      // Generate all responses
+      console.log('Generating analysis and advice...');
+      const [analysis, advice] = await Promise.all([
+        analyzeEmotion(dilemma),
+        generateStoicAdvice(dilemma),
+      ]);
+
+      setEmotionAnalysis(analysis);
+      setResponse(advice);
+
+      console.log('Generating action plan and prompts...');
+      const [plan, prompts] = await Promise.all([
+        generateActionPlan(dilemma, advice.advice),
+        generateJournalPrompts(dilemma),
+      ]);
+      
+      console.log('Plan received:', plan);
+      setActionPlan(plan);
+      setJournalPrompts(prompts);
+
+      setDilemma('');
+    } catch (err) {
+      console.error('Error:', err);
+      setError(err.message || 'Failed to get advice. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+  };
+
+  const handleUpgradeClick = () => {
+    // For now, redirect to Stripe checkout
+    // Later we'll set up the actual payment link
+    window.location.href = 'https://buy.stripe.com/YOUR_CHECKOUT_LINK'; // Replace with your Stripe link
   };
 
   return (
@@ -78,13 +119,33 @@ export default function ChatInterface() {
 
         <form onSubmit={handleSubmit} className="mb-6 sm:mb-8">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200">
-            <label htmlFor="dilemma" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">What's troubling you?</label>
-            <textarea id="dilemma" value={dilemma} onChange={(e) => setDilemma(e.target.value)} placeholder="Describe the situation you're facing..." className="w-full p-3 sm:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none text-sm sm:text-base" rows="4" disabled={loading} />
-            <button type="submit" disabled={loading || !dilemma.trim()} className="mt-3 sm:mt-4 w-full bg-amber-700 hover:bg-amber-800 disabled:bg-gray-400 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base">{loading ? 'Consulting Marcus...' : 'Seek Guidance'}</button>
+            <label htmlFor="dilemma" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+              What's troubling you?
+            </label>
+            <textarea 
+              id="dilemma" 
+              value={dilemma} 
+              onChange={(e) => setDilemma(e.target.value)} 
+              placeholder="Describe the situation you're facing..." 
+              className="w-full p-3 sm:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none text-sm sm:text-base" 
+              rows="4" 
+              disabled={loading} 
+            />
+            <button 
+              type="submit" 
+              disabled={loading || !dilemma.trim()} 
+              className="mt-3 sm:mt-4 w-full bg-amber-700 hover:bg-amber-800 disabled:bg-gray-400 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
+            >
+              {loading ? 'Consulting Marcus...' : 'Seek Guidance'}
+            </button>
           </div>
         </form>
 
         {error && <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg mb-6 text-xs sm:text-base">{error}</div>}
+
+        {showPaywall && (
+          <PaywallOverlay onUpgrade={handleUpgradeClick} />
+        )}
 
         {loading && (
           <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 text-center">
@@ -98,8 +159,19 @@ export default function ChatInterface() {
           <div className="space-y-4 sm:space-y-6">
             <EmotionAnalysis analysis={emotionAnalysis} />
             <ResponseCard response={response} />
-            {actionPlan && <ActionPlan plan={actionPlan} />}
-            {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
+            
+            {!userIsPaid ? (
+              <>
+                {actionPlan && <ActionPlan plan={actionPlan} />}
+                {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
+                <UpgradeSection onUpgrade={handleUpgradeClick} />
+              </>
+            ) : (
+              <>
+                {actionPlan && <ActionPlan plan={actionPlan} />}
+                {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
+              </>
+            )}
           </div>
         )}
       </div>
