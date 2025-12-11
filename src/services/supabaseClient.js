@@ -33,6 +33,7 @@ export async function getUserFreeUsesRemaining(userId) {
   console.log('Free uses from DB:', data[0].free_uses_remaining);
   return data[0].free_uses_remaining ?? 1;
 }
+
 export async function decrementFreeUses(userId) {
   try {
     const remaining = await getUserFreeUsesRemaining(userId);
@@ -241,6 +242,7 @@ export async function updateJournalEntry(entryId, answer) {
   if (error) throw error;
   return data;
 }
+
 export async function saveScenarioWithResponse(dilemma, analysis, advice, actionPlan, journalPrompts) {
   try {
     const { data: scenario, error: scenarioError } = await supabase
@@ -284,4 +286,78 @@ export async function saveScenarioWithResponse(dilemma, analysis, advice, action
     return { success: false, error: err.message };
   }
 }
+
+// ============================================================================
+// PAYWALL FUNCTIONS
+// ============================================================================
+
+export async function canAskQuestion(userId) {
+  // All users (free and paid) can ask unlimited questions
+  // The paywall is on action plan + journal prompts, not on questions
+  return { can_ask: true, reason: null };
+}
+
+export async function logQuestion(userId, dilemma) {
+  try {
+    const { error } = await supabase
+      .from('questions')
+      .insert({
+        user_id: userId,
+        dilemma,
+      });
+
+    if (error && error.code !== '23505') { // Unique violation is ok
+      console.error('Error logging question:', error);
+    }
+    return true;
+  } catch (err) {
+    console.error('Error in logQuestion:', err);
+    return false;
+  }
+}
+
+export async function markUserAsPaid(userId, stripeCustomerId, stripePaymentId) {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({
+        is_paid: true,
+        stripe_customer_id: stripeCustomerId,
+        stripe_payment_id: stripePaymentId,
+        paid_at: new Date().toISOString(),
+      })
+      .eq('id', userId);
+
+    if (error) {
+      console.error('Error marking user as paid:', error);
+      throw error;
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Error in markUserAsPaid:', err);
+    return false;
+  }
+}
+
+export async function getUserPaymentStatus(userId) {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('is_paid, paid_at')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error getting payment status:', error);
+      return { is_paid: false, paid_at: null };
+    }
+
+    return { is_paid: data?.is_paid || false, paid_at: data?.paid_at || null };
+  } catch (err) {
+    console.error('Error in getUserPaymentStatus:', err);
+    return { is_paid: false, paid_at: null };
+  }
+}
+
 export default supabase;

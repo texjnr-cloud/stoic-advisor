@@ -1,11 +1,12 @@
 import { supabase } from '../services/supabaseClient';
+import { logQuestion, getCurrentUser } from '../services/supabaseClient';
 import React, { useState, useEffect } from 'react';
-import { getCurrentUser } from '../services/supabaseClient';
 import { generateStoicAdvice, generateActionPlan, generateJournalPrompts, analyzeEmotion } from '../services/claudeApi';
 import EmotionAnalysis from './EmotionAnalysis';
 import ResponseCard from './ResponseCard';
 import ActionPlan from './ActionPlan';
 import JournalPrompts from './JournalPrompts';
+import UpgradeSection from './UpgradeSection';
 
 export default function ChatInterface() {
   const [dilemma, setDilemma] = useState('');
@@ -15,52 +16,98 @@ export default function ChatInterface() {
   const [journalPrompts, setJournalPrompts] = useState(null);
   const [emotionAnalysis, setEmotionAnalysis] = useState(null);
   const [error, setError] = useState(null);
+  const [userIsPaid, setUserIsPaid] = useState(false);
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!dilemma.trim()) return;
+  useEffect(() => {
+    checkUserStatus();
+  }, []);
 
-  setError(null);
-  setLoading(true);
+  const checkUserStatus = async () => {
+    try {
+      const user = await getCurrentUser();
+      if (user) {
+        const { data } = await supabase
+          .from('users')
+          .select('is_paid')
+          .eq('id', user.id)
+          .single();
 
-  try {
-    const user = await getCurrentUser();
-    if (!user) {
-      setError('Please log in to continue');
-      setLoading(false);
-      return;
+        // Explicit: only true = paid, null/false = free
+        const isPaid = data?.is_paid === true;
+        setUserIsPaid(isPaid);
+      }
+    } catch (err) {
+      console.error('Error checking user status:', err);
+      setUserIsPaid(false);
     }
+  };
 
-    console.log('Generating analysis and advice...');
-    const [analysis, advice] = await Promise.all([
-      analyzeEmotion(dilemma),
-      generateStoicAdvice(dilemma),
-    ]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!dilemma.trim()) return;
 
-    setEmotionAnalysis(analysis);
-    setResponse(advice);
+    setError(null);
+    setLoading(true);
 
-    console.log('Generating action plan and prompts...');
-    const [plan, prompts] = await Promise.all([
-      generateActionPlan(dilemma, advice.advice),
-      generateJournalPrompts(dilemma),
-    ]);
-    
-    console.log('Plan received:', plan);
-    setActionPlan(plan);
-    setJournalPrompts(prompts);
+    try {
+      const user = await getCurrentUser();
+      if (!user) {
+        setError('Please log in to continue');
+        setLoading(false);
+        return;
+      }
 
-    setDilemma('');
-  } catch (err) {
-    console.error('Error:', err);
-    setError(err.message || 'Failed to get advice. Please try again.');
-  } finally {
-    setLoading(false);
-  }
-};
+      // Get fresh user status
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_paid')
+        .eq('id', user.id)
+        .single();
+
+      const userPaid = userData?.is_paid === true;
+      setUserIsPaid(userPaid);
+
+      // Log question
+      await logQuestion(user.id, dilemma);
+
+      // Generate emotion analysis and Marcus advice (for everyone)
+      const [analysis, advice] = await Promise.all([
+        analyzeEmotion(dilemma),
+        generateStoicAdvice(dilemma),
+      ]);
+
+      setEmotionAnalysis(analysis);
+      setResponse(advice);
+
+      // ONLY generate action plan and journal if user is paid
+      if (userPaid) {
+        const [plan, prompts] = await Promise.all([
+          generateActionPlan(dilemma, advice.advice),
+          generateJournalPrompts(dilemma),
+        ]);
+        setActionPlan(plan);
+        setJournalPrompts(prompts);
+      } else {
+        // Free user: don't generate these
+        setActionPlan(null);
+        setJournalPrompts(null);
+      }
+
+      setDilemma('');
+    } catch (err) {
+      console.error('Error:', err);
+      setError(err.message || 'Failed to get advice. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
+  };
+
+  const handleUpgradeClick = () => {
+    window.location.href = import.meta.env.VITE_STRIPE_CHECKOUT_URL || 'https://buy.stripe.com/pay/cs_live_YOUR_LINK';
   };
 
   return (
@@ -78,9 +125,25 @@ export default function ChatInterface() {
 
         <form onSubmit={handleSubmit} className="mb-6 sm:mb-8">
           <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200">
-            <label htmlFor="dilemma" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">What's troubling you?</label>
-            <textarea id="dilemma" value={dilemma} onChange={(e) => setDilemma(e.target.value)} placeholder="Describe the situation you're facing..." className="w-full p-3 sm:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none text-sm sm:text-base" rows="4" disabled={loading} />
-            <button type="submit" disabled={loading || !dilemma.trim()} className="mt-3 sm:mt-4 w-full bg-amber-700 hover:bg-amber-800 disabled:bg-gray-400 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base">{loading ? 'Consulting Marcus...' : 'Seek Guidance'}</button>
+            <label htmlFor="dilemma" className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+              What's troubling you?
+            </label>
+            <textarea 
+              id="dilemma" 
+              value={dilemma} 
+              onChange={(e) => setDilemma(e.target.value)} 
+              placeholder="Describe the situation you're facing..." 
+              className="w-full p-3 sm:p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none text-sm sm:text-base" 
+              rows="4" 
+              disabled={loading} 
+            />
+            <button 
+              type="submit" 
+              disabled={loading || !dilemma.trim()} 
+              className="mt-3 sm:mt-4 w-full bg-amber-700 hover:bg-amber-800 disabled:bg-gray-400 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-colors text-sm sm:text-base"
+            >
+              {loading ? 'Consulting Marcus...' : 'Seek Guidance'}
+            </button>
           </div>
         </form>
 
@@ -98,8 +161,17 @@ export default function ChatInterface() {
           <div className="space-y-4 sm:space-y-6">
             <EmotionAnalysis analysis={emotionAnalysis} />
             <ResponseCard response={response} />
-            {actionPlan && <ActionPlan plan={actionPlan} />}
-            {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
+            
+            {userIsPaid ? (
+              // PAID: Show everything
+              <>
+                {actionPlan && <ActionPlan plan={actionPlan} />}
+                {journalPrompts && <JournalPrompts prompts={journalPrompts} />}
+              </>
+            ) : (
+              // FREE: Show upgrade section only
+              <UpgradeSection onUpgrade={handleUpgradeClick} />
+            )}
           </div>
         )}
       </div>
