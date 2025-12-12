@@ -15,17 +15,20 @@ export default function Landing({ setShowLanding }) {
       {/* HERO */}
       <section className="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 py-20">
         <div className="max-w-3xl mx-auto px-6 text-center">
-         <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold text-gray-900 mb-6">
+          <div className="inline-block bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold mb-6">
+            ✓ Unlimited Free Questions
+          </div>
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold text-gray-900 mb-6">
             Stop Reading Stoicism.<br /><span className="text-amber-700">Start <em>Implementing</em> It.</span>
           </h1>
-          <p className="text-xl text-gray-700 mb-8 leading-relaxed">
-            Most people read <em>Meditations</em>. They feel great. Then real life hits—anxiety, anger, a big decision. They freeze. The philosophy they love is useless because they can't apply it.
+          <p className="text-lg sm:text-xl text-gray-700 mb-8 leading-relaxed">
+            Ask Marcus Aurelius anything. <strong>Unlimited.</strong> Free. Get personalized Stoic wisdom for your real problems—anxiety, anger, big decisions. Then level up to a concrete 4-week action plan for just $9.
           </p>
           <p className="text-2xl font-bold text-gray-900 mb-12">
             Theory is cheap. <span className="text-amber-700">Results are not.</span>
           </p>
           <button onClick={() => setShowLanding(false)} className="inline-block bg-amber-700 hover:bg-amber-800 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors">
-            Try Your First Question Free
+            Ask Your First Question (Free)
           </button>
         </div>
       </section>
@@ -36,7 +39,7 @@ export default function Landing({ setShowLanding }) {
           <h2 className="text-4xl font-serif font-bold text-center mb-12">See It In Action</h2>
           <div className="w-full aspect-video bg-gray-200 rounded-lg overflow-hidden">
             <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0 }}>
-            <iframe src="https://www.loom.com/embed/525711224a3d43fdbe983b7c33146b65" frameBorder="0" webkitAllowFullScreen mozAllowFullScreen allowFullScreen style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}></iframe>
+              <iframe src="https://www.loom.com/embed/525711224a3d43fdbe983b7c33146b65" frameBorder="0" webkitAllowFullScreen mozAllowFullScreen allowFullScreen style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}></iframe>
             </div>
           </div>
         </div>
@@ -62,19 +65,21 @@ export default function Landing({ setShowLanding }) {
               <p className="text-gray-900 font-semibold italic">
                 "Clarity is the first step to control."
               </p>
+              <p className="text-green-700 font-semibold mt-4">✓ Free for all users</p>
             </div>
 
             <div className="bg-white p-8 rounded-lg border-l-4 border-amber-700">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">2. Personalized Wisdom That Cuts Through the Noise</h3>
               <p className="text-gray-700 mb-4">
-                 No generic quotes or random passages.
+                No generic quotes or random passages.
               </p>
               <p className="text-gray-900 font-bold mb-4">
-                Marcus Aurelius responds to YOUR specific situation.
+                A Marcus Aurelius-type response to YOUR specific situation.
               </p>
               <p className="text-gray-700">
                 The advice is built for the problem you're facing <em>right now</em>. It's a direct, personalized letter from the Emperor-Philosopher on your dilemma.
               </p>
+              <p className="text-green-700 font-semibold mt-4">✓ Free for all users</p>
             </div>
 
             <div className="bg-white p-8 rounded-lg border-l-4 border-amber-700">
@@ -88,34 +93,123 @@ export default function Landing({ setShowLanding }) {
               <p className="text-gray-700 mt-4">
                 Actual things to do every single day to rewire your response. This is the implementation.
               </p>
+              <p className="text-amber-700 font-semibold mt-4">🔒 Unlock with $9</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FREE VS PAID */}
+      <section className="py-20 bg-white">
+        <div className="max-w-5xl mx-auto px-6">
+          <h2 className="text-4xl font-serif font-bold text-center mb-16">What's Free vs. What You Unlock</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* FREE COLUMN */}
+            <div className="border-2 border-green-200 rounded-lg p-8 bg-green-50">
+              <h3 className="text-2xl font-bold text-green-800 mb-8">Free Forever ✓</h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-green-700 font-bold text-xl">✓</span>
+                  <div>
+                    <p className="font-semibold text-gray-900">Unlimited Questions</p>
+                    <p className="text-sm text-gray-600">Ask Marcus anything, as many times as you want</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="text-green-700 font-bold text-xl">✓</span>
+                  <div>
+                    <p className="font-semibold text-gray-900">Emotion Analysis</p>
+                    <p className="text-sm text-gray-600">Identify the core emotion driving your problem</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="text-green-700 font-bold text-xl">✓</span>
+                  <div>
+                    <p className="font-semibold text-gray-900">Personalized Marcus Advice</p>
+                    <p className="text-sm text-gray-600">Get direct, personalized wisdom built for your situation</p>
+                  </div>
+                </div>
+              </div>
+
+              <button onClick={() => setShowLanding(false)} className="w-full mt-8 bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-6 rounded-lg text-center transition-colors block">
+                Start Your Free Questions Now
+              </button>
+            </div>
+
+            {/* PAID COLUMN */}
+            <div className="border-2 border-amber-700 rounded-lg p-8 bg-amber-50">
+              <h3 className="text-2xl font-bold text-amber-700 mb-2">Unlock Everything</h3>
+              <p className="text-3xl font-bold text-amber-700 mb-8">$9 <span className="text-sm text-gray-600">(one-time)</span></p>
+              
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-amber-700 font-bold text-xl">+</span>
+                  <div>
+                    <p className="font-semibold text-gray-900">4-Week Action Plans</p>
+                    <p className="text-sm text-gray-600">Concrete daily steps to rewire your response</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="text-amber-700 font-bold text-xl">+</span>
+                  <div>
+                    <p className="font-semibold text-gray-900">Journal Prompts</p>
+                    <p className="text-sm text-gray-600">3 reflection questions to deepen your practice</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="text-amber-700 font-bold text-xl">+</span>
+                  <div>
+                    <p className="font-semibold text-gray-900">Lifetime Access</p>
+                    <p className="text-sm text-gray-600">Pay once, keep everything forever. No subscriptions.</p>
+                  </div>
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-600 mt-6 mb-6">
+                <strong>Try the free questions first.</strong> If it works, upgrade anytime.
+              </p>
+
+              <button onClick={() => setShowLanding(false)} className="w-full bg-amber-700 hover:bg-amber-800 text-white font-bold py-3 px-6 rounded-lg text-center transition-colors block">
+                Start Free, Upgrade Anytime
+              </button>
             </div>
           </div>
         </div>
       </section>
 
       {/* FEATURES */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-50">
         <div className="max-w-5xl mx-auto px-6">
           <h2 className="text-4xl font-serif font-bold text-center mb-16">What You Get</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Emotion Analysis</h3>
+            <div className="bg-green-50 p-8 rounded-lg border-l-4 border-green-700">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Emotion Analysis</h3>
+              <p className="text-sm font-semibold text-green-700 mb-3">Free</p>
               <p className="text-gray-700">Identifies your core emotion (Fear, Shame, Attachment) and the exact belief underneath driving it. You finally understand what's really happening.</p>
             </div>
 
-            <div className="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Personalized Stoic Advice</h3>
+            <div className="bg-green-50 p-8 rounded-lg border-l-4 border-green-700">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Personalized Stoic Advice</h3>
+              <p className="text-sm font-semibold text-green-700 mb-3">Free</p>
               <p className="text-gray-700">Marcus Aurelius responds directly to YOUR situation. Not generic quotes—personalized wisdom built for the exact problem you're facing.</p>
             </div>
 
             <div className="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">4-Week Action Plan</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">4-Week Action Plan</h3>
+              <p className="text-sm font-semibold text-amber-700 mb-3">Paid ($9)</p>
               <p className="text-gray-700">Concrete daily steps for each week. Actual things to do every day to rewire your response and implement Stoicism in real life.</p>
             </div>
 
             <div className="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Journal Prompts</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Journal Prompts</h3>
+              <p className="text-sm font-semibold text-amber-700 mb-3">Paid ($9)</p>
               <p className="text-gray-700">3 reflection questions for each dilemma. Write to deepen your practice and track your progress over the 4 weeks.</p>
             </div>
           </div>
@@ -123,7 +217,7 @@ export default function Landing({ setShowLanding }) {
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-white">
         <div className="max-w-3xl mx-auto px-6">
           <h2 className="text-4xl font-serif font-bold text-center mb-16">How to Stop Overthinking in 3 Steps</h2>
           
@@ -133,7 +227,7 @@ export default function Landing({ setShowLanding }) {
                 <div className="w-12 h-12 bg-amber-700 text-white rounded-full flex items-center justify-center font-bold text-lg">1</div>
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Drop the Problem</h3>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Drop the Problem (Free)</h3>
                 <p className="text-gray-700">Describe what's troubling you. Anxiety about starting your business. Anger at a colleague. Perfectionism paralyzing your launch. Whatever it is.</p>
               </div>
             </div>
@@ -143,12 +237,11 @@ export default function Landing({ setShowLanding }) {
                 <div className="w-12 h-12 bg-amber-700 text-white rounded-full flex items-center justify-center font-bold text-lg">2</div>
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Get the Blueprint</h3>
-                <p className="text-gray-700 mb-3">In seconds, you get the full analysis:</p>
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Get the Blueprint (Free + Paid)</h3>
+                <p className="text-gray-700 mb-3">In seconds, you get:</p>
                 <ul className="text-gray-700 space-y-1">
-                  <li>• What emotion is actually driving this.</li>
-                  <li>• Marcus's personalized response.</li>
-                  <li>• Your 4-week action plan + reflection prompts.</li>
+                  <li>• <span className="font-semibold">Free:</span> What emotion is driving this + Marcus's personalized response.</li>
+                  <li>• <span className="font-semibold">Paid ($9):</span> Your 4-week action plan + reflection prompts.</li>
                 </ul>
               </div>
             </div>
@@ -159,7 +252,7 @@ export default function Landing({ setShowLanding }) {
               </div>
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">Execute</h3>
-                <p className="text-gray-700">That's it. You have the plan. Now you just do the work.</p>
+                <p className="text-gray-700">That's it. You have the plan (if paid). Now you just do the work.</p>
               </div>
             </div>
           </div>
@@ -167,89 +260,64 @@ export default function Landing({ setShowLanding }) {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gray-50">
         <div className="max-w-3xl mx-auto px-6">
           <h2 className="text-4xl font-serif font-bold text-center mb-16">Why People Use It</h2>
           
-          <div class="space-y-8">
-      <div class="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
-        <p class="text-lg text-gray-800 italic mb-4">
-          "This is really bloody good. The response was so insightful!"
-        </p>
-        <p class="text-gray-600 font-semibold">— Jermaine Anderson </p>
-      </div>
-
-      <div class="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
-        <p class="text-lg text-gray-800 italic mb-4">
-          "I went from overthinking to acting in one week. This is what Stoicism should feel like...practical, not preachy."
-        </p>
-        <p class="text-gray-600 font-semibold">— Lorraine Mills</p>
-      </div>
-
-      <div class="bg-amber-50 p-8 rounded-lg border-l-4 border-amber-700">
-        <p class="text-lg text-gray-800 italic mb-4">
-          "I finally understood what was driving my fear of failure. The personalized advice was the kick I needed."
-        </p>
-        <p class="text-gray-600 font-semibold">— Gavin White</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-      {/* PRICING */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-3xl mx-auto px-6">
-          <h2 className="text-4xl font-serif font-bold text-center mb-4">Pricing: $9. One Time. Forever.</h2>
-          <p className="text-center text-gray-700 text-lg mb-16">
-            <strong>No subscriptions. No monthly fees. You pay once and you own it.</strong>
-          </p>
-
-          <div className="bg-white rounded-lg shadow-lg p-6 sm:p-12 mb-8 text-center">
-            <div className="mb-6">
-              <p className="text-gray-600 text-sm mb-2">LAUNCH PRICE (First 100 Users)</p>
-              <p className="text-5xl font-bold text-amber-700">$9</p>
-              <p className="text-gray-600 text-sm mt-2">Regular price: $29</p>
+          <div className="space-y-8">
+            <div className="bg-white p-8 rounded-lg border-l-4 border-amber-700">
+              <p className="text-lg text-gray-800 italic mb-4">
+                "This is really bloody good. The response was so insightful!"
+              </p>
+              <p className="text-gray-600 font-semibold">— Jermaine Anderson </p>
             </div>
 
-            <ul className="text-left space-y-3 mb-8 max-w-sm mx-auto">
-              <li className="flex items-center gap-3">
-                <span className="text-amber-700 font-bold">✓</span>
-                <span>Unlimited questions to Marcus</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="text-amber-700 font-bold">✓</span>
-                <span>4-week action plans for each</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <span className="text-amber-700 font-bold">✓</span>
-                <span>Lifetime access to all features</span>
-              </li>
-            </ul>
+            <div className="bg-white p-8 rounded-lg border-l-4 border-amber-700">
+              <p className="text-lg text-gray-800 italic mb-4">
+                "I went from overthinking to acting in one week. This is what Stoicism should feel like...practical, not preachy."
+              </p>
+              <p className="text-gray-600 font-semibold">— Lorraine Mills</p>
+            </div>
 
-            <p className="text-red-600 font-bold text-sm mb-8">🔥 Only 87 spots left at this price</p>
-
-            <button onClick={() => setShowLanding(false)} className="inline-block bg-amber-700 hover:bg-amber-800 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors">
-              Start Your Free Question Now
-            </button>
+            <div className="bg-white p-8 rounded-lg border-l-4 border-amber-700">
+              <p className="text-lg text-gray-800 italic mb-4">
+                "I finally understood what was driving my fear of failure. The personalized advice was the kick I needed."
+              </p>
+              <p className="text-gray-600 font-semibold">— Gavin White</p>
+            </div>
           </div>
-
-          <p className="text-center text-gray-700">
-            We hate subscriptions as much as you do. This is a tool, not a habit you have to pay for every month.
-          </p>
         </div>
       </section>
 
-      {/* CTA FINAL */}
+      {/* PRICING FINAL CTA */}
       <section className="py-20 bg-gradient-to-r from-amber-50 to-orange-50">
-        <div className="max-w-2xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-serif font-bold mb-6">Ready to Stop Reading and Start Implementing?</h2>
-          <p className="text-xl text-gray-700 mb-8">
-            Try one question free. Zero risk. If it works, $9 unlocks everything forever.
+        <div className="max-w-3xl mx-auto px-6">
+          <h2 className="text-4xl font-serif font-bold text-center mb-6">Ready to Get Unstuck?</h2>
+          <p className="text-xl text-gray-700 text-center mb-8">
+            <strong>Try unlimited free questions first.</strong> No credit card. No signup costs. If it works, upgrade to action plans for $9.
           </p>
-          <button onClick={() => setShowLanding(false)} className="inline-block bg-amber-700 hover:bg-amber-800 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors">
-            Try the First Question Free
-          </button>
+
+          <div className="bg-white rounded-lg shadow-lg p-12 text-center max-w-lg mx-auto mb-8">
+            <div className="mb-8">
+              <p className="text-gray-600 text-sm mb-2">TRY FREE, THEN UPGRADE</p>
+              <p className="text-5xl font-bold text-green-700 mb-2">$0</p>
+              <p className="text-gray-700 text-lg">for unlimited Marcus questions</p>
+            </div>
+
+            <div className="border-t border-gray-200 pt-8 mb-8">
+              <p className="text-gray-600 text-sm mb-3">THEN UNLOCK EVERYTHING FOR</p>
+              <p className="text-4xl font-bold text-amber-700">$9</p>
+              <p className="text-gray-600 text-sm mt-2">One-time. Lifetime access.</p>
+            </div>
+
+            <button onClick={() => setShowLanding(false)} className="w-full bg-green-700 hover:bg-green-800 text-white font-bold py-4 px-8 rounded-lg text-lg transition-colors block mb-4">
+              Ask Your First Question (Free)
+            </button>
+
+            <p className="text-gray-600 text-sm">
+              No credit card required. No hidden fees. Cancel anytime.
+            </p>
+          </div>
         </div>
       </section>
 
